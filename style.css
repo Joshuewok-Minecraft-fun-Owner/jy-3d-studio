@@ -1,1 +1,82 @@
-/* Add styles here */
+:root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --accent: #58a6ff;
+    --text: #c9d1d9;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    margin: 0;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 5%;
+    border-bottom: 1px solid #30363d;
+}
+
+.logo { font-weight: bold; letter-spacing: 2px; color: white; }
+
+.nav-links a {
+    color: var(--text);
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 14px;
+}
+
+.hero { text-align: center; padding: 60px 20px; }
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    padding: 0 5% 60px;
+}
+
+.card {
+    background: var(--card);
+    border-radius: 12px;
+    border: 1px solid #30363d;
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.card:hover { transform: translateY(-5px); border-color: var(--accent); }
+
+.img-placeholder {
+    height: 250px;
+    background: #21262d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #484f58;
+}
+
+.card-info { padding: 20px; }
+
+.price { color: var(--accent); font-weight: bold; font-size: 18px; }
+
+.buy-btn {
+    width: 100%;
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+footer {
+    text-align: center;
+    padding: 40px;
+    font-size: 12px;
+    color: #484f58;
+    border-top: 1px solid #30363d;
+}
