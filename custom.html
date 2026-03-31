@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Commission | JY 3D Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .form-container { max-width: 600px; margin: 40px auto; padding: 20px; background: var(--card); border-radius: 12px; border: 1px dotted #30363d; }
+        label { display: block; margin-top: 20px; font-size: 14px; color: #8b949e; }
+        input, select, textarea { 
+            width: 100%; padding: 12px; margin-top: 8px; 
+            background: #0d1117; border: 1px solid #30363d; 
+            color: white; border-radius: 6px; box-sizing: border-box;
+        }
+        .surcharge-notice { 
+            background: rgba(255, 171, 0, 0.1); color: #ffab00; 
+            padding: 10px; border-radius: 6px; margin-top: 15px; 
+            font-size: 13px; display: none; border: 1px solid #ffab00;
+        }
+        .price-summary { 
+            margin-top: 30px; padding-top: 20px; border-top: 1px solid #30363d; 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        #total-price { font-size: 24px; color: var(--accent); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">JY 3D STUDIO</div>
+    <div class="nav-links">
+        <a href="index.html">Collection</a>
+        <a href="custom.html">Custom Design</a>
+        <a href="#" class="cart-btn">Cart (0)</a>
+    </div>
+</nav>
+
+<div class="form-container">
+    <h2>Custom Design Request</h2>
+    <p style="font-size: 14px; color: #8b949e;">Turn your 2D art or concept into a 3D physical object.</p>
+
+    <label>Project Name / Reference</label>
+    <input type="text" id="proj-name" placeholder="Ex: My Gaming Logo">
+
+    <label>Target Size (Width in mm)</label>
+    <input type="number" id="size-input" value="80" oninput="updatePricing()">
+    
+    <div id="surcharge-box" class="surcharge-notice">
+        ⚠️ <strong>Multi-Part Assembly Required:</strong> Since this exceeds 100mm, it will be printed in sections. A $10 assembly fee has been added.
+    </div>
+
+    <label>Preferred PLA Color</label>
+    <select id="color-select">
+        <option>Matte Black</option>
+        <option>Silk Silver</option>
+        <option>Galaxy Blue</option>
+        <option>Pure White</option>
+    </select><label>Preferred PLA Color</label>
+    <select id="color-select">
+        <option value="Dark Blue">Dark Blue</option>
+        <option value="Deep Purple">Deep Purple</option>
+        <option value="Forest Green">Forest Green</option>
+        <option value="Yellow">Yellow</option>
+        <option value="Orange">Orange</option>
+        <option value="White" style="color: #888;">White (Very Limited Stock)</option>
+    </select>
+
+    <label>Special Instructions</label>
+    <textarea id="notes" rows="4" placeholder="Ex: Make the base 5mm thick, or add a mounting hole..."></textarea>
+
+    <div class="price-summary">
+        <div>Estimated Total:</div>
+        <div id="total-price">$25.00</div>
+    </div>
+
+    <button class="buy-btn" style="margin-top: 20px;" onclick="addToOrder()">Add Custom Project to Order</button>
+</div>
+
+<script>
+    // This tracks the "Cart" in the browser's memory while they shop
+    let cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
+
+    function updatePricing() {
+        const size = document.getElementById('size-input').value;
+        const surchargeBox = document.getElementById('surcharge-box');
+        const priceDisplay = document.getElementById('total-price');
+        
+        let baseDesignFee = 15;
+        let printCost = 10;
+        let total = baseDesignFee + printCost;
+
+        if (size > 100) {
+            total += 10;
+            surchargeBox.style.display = 'block';
+        } else {
+            surchargeBox.style.display = 'none';
+        }
+
+        priceDisplay.innerText = `$${total}.00`;
+    }
+
+    function addToOrder() {
+        const item = {
+            name: "Custom Commission: " + document.getElementById('proj-name').value,
+            size: document.getElementById('size-input').value,
+            color: document.getElementById('color-select').value,
+            notes: document.getElementById('notes').value,
+            price: document.getElementById('total-price').innerText
+        };
+
+        cart.push(item);
+        localStorage.setItem('jy_cart', JSON.stringify(cart));
+        
+        alert("Added! " + item.color + " project is now in your order slip.");
+        window.location.href = 'index.html'; // Sends them back to the shop
+    }
+</script>
+
+</body>
+</html>
