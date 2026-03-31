@@ -1,82 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Geometric Vase v1 | JY Studio</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .product-flex { display: flex; gap: 40px; max-width: 1000px; margin: 40px auto; padding: 20px; }
-        .product-image { flex: 1; background: #161b22; border-radius: 12px; height: 400px; border: 1px solid #30363d; }
-        .product-options { flex: 1; }
-        .tweak-section { background: #1c2128; padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px solid #30363d; }
-        .price-tag { font-size: 2rem; color: var(--accent); margin: 20px 0; }
-    </style>
-</head>
-<body>
+<div class="product-options">
+    <h1>Geometric Vase v1</h1>
+    <p class="price-tag" id="item-total">$15.00</p>
+    
+    <label>Select Color</label>
+    <select id="item-color">
+        <option>Dark Blue</option>
+        <option>Deep Purple</option>
+        <option>Forest Green</option>
+        <option>Yellow</option>
+        <option>Orange</option>
+        <option>White (Limited Stock)</option>
+    </select>
 
-<nav>
-    <div class="logo">JY 3D STUDIO</div>
-    <div class="nav-links"><a href="index.html">Collection</a></div>
-</nav>
-
-<div class="product-flex">
-    <div class="product-image"> </div>
-
-    <div class="product-options">
-        <h1>Geometric Vase v1</h1>
-        <p>A signature JY design optimized for Silk PLA.</p>
-        
-        <label>Select Color</label>
-        <select id="item-color">
-            <option>Dark Blue</option>
-            <option>Deep Purple</option>
-            <option>Forest Green</option>
-            <option>Yellow</option>
-            <option>Orange</option>
-            <option>White (Limited)</option>
-        </select>
-
-        <div class="tweak-section">
-            <h4>Personalize / Tweak</h4>
-            <label><input type="checkbox" id="tweak-name" onchange="calcItemPrice()"> Add custom text/name (+$5)</label><br>
-            <label><input type="checkbox" id="tweak-size" onchange="calcItemPrice()"> Upscale to 120mm (+$10 multi-part fee)</label>
-            <input type="text" id="tweak-note" placeholder="What text should I add?" style="display:none; width:100%; margin-top:10px; background:#0d1117; color:white; border:1px solid #333; padding:8px;">
-        </div>
-
-        <div class="price-tag" id="item-total">$15.00</div>
-        <button class="buy-btn" onclick="addTweakToCart()">Add to Order Slip</button>
+    <label>Target Size (Width/Height in mm)</label>
+    <input type="number" id="size-input" value="80" min="10" max="250" oninput="calcItemPrice()">
+    
+    <div id="size-warning" style="display:none; color: #ffab00; font-size: 0.8rem; margin-top: 5px;">
+        ⚠️ Note: Items over 100mm require multi-part assembly (+$10 fee).
     </div>
+
+    <label>Personalization & Tweaks</label>
+    <textarea id="item-notes" placeholder="Ex: Add the name 'Alex' to the base, or make the walls thinner..."></textarea>
+
+    <button class="buy-btn" style="margin-top: 20px;" onclick="addItemToOrder()">Add to Order Slip</button>
 </div>
 
 <script>
     function calcItemPrice() {
-        let price = 15;
-        const nameBox = document.getElementById('tweak-name');
-        const sizeBox = document.getElementById('tweak-size');
-        const noteInput = document.getElementById('tweak-note');
+        let basePrice = 15;
+        const size = document.getElementById('size-input').value;
+        const warning = document.getElementById('size-warning');
+        const display = document.getElementById('item-total');
 
-        if(nameBox.checked) { price += 5; noteInput.style.display = 'block'; } 
-        else { noteInput.style.display = 'none'; }
-        
-        if(sizeBox.checked) { price += 10; }
+        if (size > 100) {
+            basePrice += 10;
+            warning.style.display = 'block';
+        } else {
+            warning.style.display = 'none';
+        }
 
-        document.getElementById('item-total').innerText = `$${price}.00`;
+        display.innerText = `$${basePrice}.00`;
     }
 
-    function addTweakToCart() {
+    function addItemToOrder() {
         let cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
-        const item = {
+        
+        const newItem = {
             name: "Geometric Vase v1",
             color: document.getElementById('item-color').value,
-            price: document.getElementById('item-total').innerText,
-            notes: document.getElementById('tweak-note').value || "No tweaks"
+            size: document.getElementById('size-input').value + "mm",
+            notes: document.getElementById('item-notes').value || "No special instructions",
+            price: document.getElementById('item-total').innerText
         };
-        cart.push(item);
+
+        cart.push(newItem);
         localStorage.setItem('jy_cart', JSON.stringify(cart));
-        alert("Added to cart with your tweaks!");
+        
+        alert("Added! Your personalization notes have been saved to the order.");
         window.location.href = 'index.html';
     }
 </script>
-
-</body>
-</html>
