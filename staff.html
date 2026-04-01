@@ -10,84 +10,114 @@
         body { background: var(--bg); color: white; font-family: sans-serif; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
         
-        .import-section { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 10px; margin-bottom: 30px; }
-        textarea { width: 100%; height: 80px; background: #010409; color: #8b949e; border: 1px solid var(--border); padding: 10px; border-radius: 6px; margin-bottom: 10px; font-family: monospace; }
+        .live-status { 
+            display: flex; align-items: center; gap: 10px; 
+            font-size: 0.8rem; color: #3fb950; margin-bottom: 20px; 
+            background: rgba(63, 185, 80, 0.1); width: fit-content;
+            padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(63, 185, 80, 0.3);
+        }
+        .pulse { width: 8px; height: 8px; background: #3fb950; border-radius: 50%; animation: pulse-animation 2s infinite; }
+        @keyframes pulse-animation { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 12px; position: relative; transition: 0.2s; }
+        .card:hover { border-color: var(--accent); }
+
+        .label { color: #8b949e; font-size: 0.7rem; text-transform: uppercase; display: block; margin-top: 12px; }
+        .price-display { font-size: 1.4rem; color: var(--accent); font-weight: bold; margin-top: 10px; }
         
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
-        .card { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 10px; position: relative; }
-        
-        .status-btn { background: #21262d; border: 1px solid var(--border); color: #c9d1d9; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; margin-right: 5px; }
-        .status-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-        
-        .price-tag { font-weight: bold; color: var(--accent); font-size: 1.2rem; }
-        .detail-row { margin: 10px 0; font-size: 0.9rem; border-bottom: 1px solid #21262d; padding-bottom: 5px; }
-        .label { color: #8b949e; font-size: 0.7rem; text-transform: uppercase; display: block; }
+        .item-list { background: #0d1117; padding: 10px; border-radius: 6px; margin-top: 5px; font-size: 0.85rem; border: 1px solid #21262d; }
+
+        .btn-archive { 
+            margin-top: 20px; width: 100%; padding: 10px; 
+            background: transparent; border: 1px solid #f85149; 
+            color: #f85149; border-radius: 6px; cursor: pointer;
+            font-weight: bold; transition: 0.2s;
+        }
+        .btn-archive:hover { background: #f85149; color: white; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>JY Production Dashboard</h1>
-    
-    <div class="import-section">
-        <label class="label">Paste Work Order from Email</label>
-        <textarea id="raw-input" placeholder="Paste the text from Formspree here..."></textarea>
-        <button class="buy-btn" onclick="processOrder()">+ Load into Pipeline</button>
+    <div class="live-status">
+        <div class="pulse"></div> LIVE DATA CONNECTED
     </div>
+    <h1>Staff Production Pipeline</h1>
+    <p style="color: #8b949e; margin-bottom: 30px;">Orders appear here automatically the moment a customer submits their slip.</p>
 
-    <div class="grid" id="order-grid"></div>
+    <div class="grid" id="order-grid">
+        <p style="color: #8b949e;">Waiting for incoming orders...</p>
+    </div>
 </div>
 
-<script>
-    let pipeline = JSON.parse(localStorage.getItem('jy_pipeline')) || [];
+<script type="module">
+    // Import the tools from your config file
+    import { db, collection, onSnapshot, query, orderBy, deleteDoc, doc } from './firebase-config.js';
 
-    function processOrder() {
-        const text = document.getElementById('raw-input').value;
-        if (!text) return;
+    const grid = document.getElementById('order-grid');
 
-        // Extracting data from your email format
-        const entry = {
-            id: Date.now(),
-            name: text.match(/PRODUCT: (.*)/)?.[1] || "Unnamed Item",
-            specs: text.match(/COLOR: (.*)/)?.[1] + " | " + text.match(/SIZE: (.*)/)?.[1],
-            notes: text.match(/NOTES: (.*)/)?.[1] || "No notes",
-            price: text.match(/PRICE: (.*)/)?.[1] || "$0.00",
-            status: "Pending"
-        };
+    // Create a query that sorts by the newest orders first
+    const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
 
-        pipeline.push(entry);
-        save();
-        document.getElementById('raw-input').value = '';
-        render();
-    }
+    // LISTEN for changes in real-time
+    onSnapshot(q, (snapshot) => {
+        if (snapshot.empty) {
+            grid.innerHTML = '<p style="color: #8b949e;">The pipeline is currently empty.</p>';
+            return;
+        }
 
-    function render() {
-        const grid = document.getElementById('order-grid');
-        grid.innerHTML = '';
-        
-        pipeline.forEach((order, index) => {
+        grid.innerHTML = ''; // Clear existing cards
+
+        snapshot.forEach((orderDoc) => {
+            const data = orderDoc.data();
+            const id = orderDoc.id;
+
+            // Handle multiple items in a single order
+            const itemsHtml = data.items.map(item => `
+                <div style="margin-bottom: 8px; border-bottom: 1px solid #21262d; padding-bottom: 5px;">
+                    <strong>${item.name}</strong><br>
+                    <span style="color:#8b949e;">${item.size} | ${item.color}</span>
+                </div>
+            `).join('');
+
             grid.innerHTML += `
                 <div class="card">
-                    <h3 style="margin-top:0">${order.name}</h3>
-                    <div class="detail-row"><span class="label">Specs</span> ${order.specs}</div>
-                    <div class="detail-row"><span class="label">Instructions</span> ${order.notes}</div>
-                    <div class="detail-row"><span class="label">Payment Due</span> <span class="price-tag">${order.price}</span></div>
-                    
-                    <div style="margin-top:15px;">
-                        <button class="status-btn ${order.status === 'Pending' ? 'active' : ''}" onclick="updateStatus(${index}, 'Pending')">Pending</button>
-                        <button class="status-btn ${order.status === 'Printing' ? 'active' : ''}" onclick="updateStatus(${index}, 'Printing')">Printing</button>
-                        <button class="status-btn" onclick="archive(${index})" style="float:right; border-color:#f85149; color:#f85149;">Done/Archive</button>
+                    <div style="font-size: 0.75rem; color: #8b949e; margin-bottom: 15px;">
+                        ORDER ID: ${id.substring(0,8)}...
                     </div>
+                    
+                    <span class="label">Customer</span>
+                    <div style="font-weight:bold;">${data.customerName}</div>
+                    <div style="color:var(--accent); font-size: 0.85rem;">${data.customerEmail}</div>
+
+                    <span class="label">Manifest</span>
+                    <div class="item-list">${itemsHtml}</div>
+
+                    <span class="label">Total Estimate</span>
+                    <div class="price-display">${data.totalPrice || '$' + calculateTotal(data.items)}</div>
+
+                    <button class="btn-archive" onclick="archiveJob('${id}')">Complete & Archive</button>
                 </div>
             `;
         });
+    });
+
+    // Helper to calculate total if it wasn't saved directly
+    function calculateTotal(items) {
+        return items.reduce((sum, item) => sum + parseFloat(item.price.replace('$', '')), 0).toFixed(2);
     }
 
-    function updateStatus(index, s) { pipeline[index].status = s; save(); render(); }
-    function archive(index) { pipeline.splice(index, 1); save(); render(); }
-    function save() { localStorage.setItem('jy_pipeline', JSON.stringify(pipeline)); }
-
-    window.onload = render;
+    // Function to delete from Firebase
+    window.archiveJob = async (id) => {
+        if(confirm("Are you sure this print is finished? It will be removed from the pipeline.")) {
+            try {
+                await deleteDoc(doc(db, "orders", id));
+            } catch (err) {
+                alert("Error archiving: " + err.message);
+            }
+        }
+    };
 </script>
 
 </body>
