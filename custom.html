@@ -3,112 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Commission | JY 3D Studio</title>
+    <title>Custom Design Brief | JY 3D Studio</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .form-container { max-width: 600px; margin: 40px auto; padding: 20px; background: var(--card); border-radius: 12px; border: 1px dotted #30363d; }
-        label { display: block; margin-top: 20px; font-size: 14px; color: #8b949e; }
+        .custom-container { max-width: 800px; margin: 40px auto; padding: 30px; background: var(--card); border-radius: 15px; border: 1px solid #30363d; }
+        .section-header { color: #58a6ff; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1.5px; margin: 30px 0 15px 0; border-bottom: 1px solid #21262d; padding-bottom: 5px; }
+        
+        label { display: block; font-size: 0.9rem; margin-top: 15px; color: #8b949e; }
         input, select, textarea { 
             width: 100%; padding: 12px; margin-top: 8px; 
             background: #0d1117; border: 1px solid #30363d; 
             color: white; border-radius: 6px; box-sizing: border-box;
+            font-family: inherit;
         }
-        .surcharge-notice { 
-            background: rgba(255, 171, 0, 0.1); color: #ffab00; 
-            padding: 10px; border-radius: 6px; margin-top: 15px; 
-            font-size: 13px; display: none; border: 1px solid #ffab00;
+
+        .dual-input { display: flex; gap: 15px; align-items: center; }
+        .input-wrapper { flex: 1; position: relative; }
+        .unit-tag { position: absolute; right: 12px; top: 38px; color: #484f58; font-size: 0.8rem; }
+
+        .warning-banner { 
+            background: rgba(255, 171, 0, 0.1); border: 1px solid #ffab00; 
+            color: #ffab00; padding: 15px; border-radius: 8px; 
+            margin-top: 20px; display: none; font-size: 0.85rem;
         }
-        .price-summary { 
-            margin-top: 30px; padding-top: 20px; border-top: 1px solid #30363d; 
-            display: flex; justify-content: space-between; align-items: center;
+
+        .price-breakdown { 
+            background: #1c2128; padding: 20px; border-radius: 10px; 
+            margin-top: 30px; border: 1px solid #30363d; text-align: center;
         }
-        #total-price { font-size: 24px; color: var(--accent); font-weight: bold; }
+        .grand-total { font-size: 3rem; color: #58a6ff; font-weight: 900; margin: 10px 0; }
     </style>
 </head>
 <body>
 
 <nav>
     <div class="logo">JY 3D STUDIO</div>
-    <div class="nav-links">
-        <a href="index.html">Collection</a>
-        <a href="custom.html">Custom Design</a>
-        <a href="#" class="cart-btn">Cart (0)</a>
-    </div>
+    <div class="nav-links"><a href="index.html">Back to Shop</a></div>
 </nav>
 
-<div class="form-container">
-    <h2>Custom Design Request</h2>
-    <p style="font-size: 14px; color: #8b949e;">Turn your 2D art or concept into a 3D physical object.</p>
+<div class="custom-container">
+    <h2>Project Brief: Custom Commission</h2>
+    <p style="color: #8b949e;">I specialize in translating 2D concepts into 3D printable geometry. Please be as detailed as possible.</p>
 
-    <label>Project Name / Reference</label>
-    <input type="text" id="proj-name" placeholder="Ex: My Gaming Logo">
+    <div class="section-header">1. The Concept</div>
+    <label>Project Name / Headline</label>
+    <input type="text" id="proj-title" placeholder="e.g. Minimalist Headphone Stand with Logo">
 
-    <label>Target Size (Width in mm)</label>
-    <input type="number" id="size-input" value="80" oninput="updatePricing()">
-    
-    <div id="surcharge-box" class="surcharge-notice">
-        ⚠️ <strong>Multi-Part Assembly Required:</strong> Since this exceeds 100mm, it will be printed in sections. A $10 assembly fee has been added.
+    <label>Reference Link (Pinterest, Google Drive, Imgur)</label>
+    <input type="text" id="ref-link" placeholder="Paste link to sketches or inspiration here">
+
+    <div class="section-header">2. Technical Instructions</div>
+    <label>Target Dimensions (Linked for precision)</label>
+    <div class="dual-input">
+        <div class="input-wrapper">
+            <input type="number" id="in-size" step="0.1" value="3.1" oninput="syncUnits('in')">
+            <span class="unit-tag">in</span>
+        </div>
+        <div style="color:#444;">=</div>
+        <div class="input-wrapper">
+            <input type="number" id="mm-size" value="80" oninput="syncUnits('mm')">
+            <span class="unit-tag">mm</span>
+        </div>
     </div>
 
-    <label>Preferred PLA Color</label>
-    <select id="color-select">
-        <option value="Dark Blue">Dark Blue</option>
-        <option value="Deep Purple">Deep Purple</option>
-        <option value="Forest Green">Forest Green</option>
-        <option value="Yellow">Yellow</option>
-        <option value="Orange">Orange</option>
-        <option value="White" style="color: #888;">White (Very Limited Stock)</option>
+    <div id="size-warning" class="warning-banner">
+        ⚠️ <strong>Surcharge Applied:</strong> Designs exceeding 100mm require multi-part printing and post-processing. +$10 added to material cost.
+    </div>
+
+    <label>Required Features / Details</label>
+    <textarea id="proj-details" rows="6" placeholder="Instructions: List any specific mounting holes, wall thicknesses, textures, or 'moving parts' you expect in the design..."></textarea>
+
+    <div class="section-header">3. Environmental Usage</div>
+    <label>Where will this be used?</label>
+    <select id="use-case" onchange="checkUsage()">
+        <option value="indoor">Indoor (Home/Office Decor)</option>
+        <option value="display">Display Case / PC Interior</option>
+        <option value="outdoor">Outdoor / Car Interior (Direct Sunlight)</option>
     </select>
-
-    <label>Special Instructions</label>
-    <textarea id="notes" rows="4" placeholder="Ex: Make the base 5mm thick, or add a mounting hole..."></textarea>
-
-    <div class="price-summary">
-        <div>Estimated Total:</div>
-        <div id="total-price">$25.00</div>
+    <div id="material-warning" class="warning-banner" style="border-color: #f85149; color: #f85149; background: rgba(248, 81, 73, 0.1);">
+        🛑 <strong>PLA Warning:</strong> Standard PLA will warp or melt in temperatures above 50°C (122°F). High-heat environments are not recommended for this material.
     </div>
 
-    <button class="buy-btn" style="margin-top: 20px;" onclick="addToOrder()">Add Custom Project to Order</button>
+    <div class="price-breakdown">
+        <div style="text-transform: uppercase; font-size: 0.7rem; color: #8b949e; letter-spacing: 1px;">Estimated Design + Print Total</div>
+        <div class="grand-total" id="display-price">$25.00</div>
+        <p style="font-size: 0.8rem; color: #484f58;">Includes $15 Design Fee + $10 Base Material Cost</p>
+    </div>
+
+    <button class="buy-btn" style="width:100%; margin-top:25px; padding: 20px; font-size: 1.2rem;" onclick="addCommissionToCart()">Add Custom Project to Order Slip</button>
 </div>
 
 <script>
-    // This tracks the "Cart" in the browser's memory while they shop
-    let cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
+    function syncUnits(unit) {
+        const inIn = document.getElementById('in-size');
+        const mmIn = document.getElementById('mm-size');
+        const warning = document.getElementById('size-warning');
+        const priceDisplay = document.getElementById('display-price');
+        let mmVal;
 
-    function updatePricing() {
-        const size = document.getElementById('size-input').value;
-        const surchargeBox = document.getElementById('surcharge-box');
-        const priceDisplay = document.getElementById('total-price');
-        
-        let baseDesignFee = 15;
-        let printCost = 10;
-        let total = baseDesignFee + printCost;
-
-        if (size > 100) {
-            total += 10;
-            surchargeBox.style.display = 'block';
+        if(unit === 'in') {
+            mmVal = Math.round(inIn.value / 0.03937);
+            mmIn.value = mmVal;
         } else {
-            surchargeBox.style.display = 'none';
+            mmVal = mmIn.value;
+            inIn.value = (mmVal * 0.03937).toFixed(1);
         }
 
-        priceDisplay.innerText = `$${total}.00`;
+        let base = 25;
+        if(mmVal > 100) {
+            base += 10;
+            warning.style.display = 'block';
+        } else {
+            warning.style.display = 'none';
+        }
+        priceDisplay.innerText = `$${base}.00`;
     }
 
-    function addToOrder() {
-        const item = {
-            name: "Custom Commission: " + document.getElementById('proj-name').value,
-            size: document.getElementById('size-input').value,
-            color: document.getElementById('color-select').value,
-            notes: document.getElementById('notes').value,
-            price: document.getElementById('total-price').innerText
-        };
+    function checkUsage() {
+        const val = document.getElementById('use-case').value;
+        document.getElementById('material-warning').style.display = (val === 'outdoor') ? 'block' : 'none';
+    }
 
+    function addCommissionToCart() {
+        let cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
+        const item = {
+            name: "CUSTOM: " + document.getElementById('proj-title').value,
+            size: document.getElementById('mm-size').value + "mm (" + document.getElementById('in-size').value + "in)",
+            color: "Consultation Required",
+            notes: "Type: " + document.getElementById('use-case').value + 
+                   "\nLink: " + document.getElementById('ref-link').value + 
+                   "\nInstructions: " + document.getElementById('proj-details').value,
+            price: document.getElementById('display-price').innerText
+        };
         cart.push(item);
         localStorage.setItem('jy_cart', JSON.stringify(cart));
-        
-        alert("Added! " + item.color + " project is now in your order slip.");
-        window.location.href = 'index.html'; // Sends them back to the shop
+        alert("Custom brief added! Go to checkout to send this to Joshua.");
+        window.location.href = 'index.html';
     }
+
+    window.onload = function() { syncUnits('mm'); };
 </script>
 
 </body>
