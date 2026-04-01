@@ -26,9 +26,9 @@
         }
         .product-options { flex: 1; display: flex; flex-direction: column; gap: 15px; }
         
-        label { font-size: 0.85rem; color: #8b949e; margin-bottom: -10px; }
+        label { font-size: 0.85rem; color: #8b949e; margin-bottom: -5px; margin-top: 10px;}
         
-        input, select, textarea { 
+        input[type="number"], input[type="text"], select, textarea { 
             width: 100%; 
             padding: 12px; 
             background: #0d1117; 
@@ -36,6 +36,14 @@
             color: white; 
             border-radius: 6px; 
             font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        /* Slider Styling */
+        input[type="range"] {
+            width: 100%;
+            margin: 15px 0;
+            cursor: pointer;
         }
 
         .price-tag { font-size: 2.5rem; color: #58a6ff; font-weight: bold; margin: 10px 0; }
@@ -48,6 +56,15 @@
             font-size: 0.85rem; 
             border: 1px solid #ffab00;
             display: none;
+            line-height: 1.4;
+        }
+
+        .size-stats {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            color: #eee;
+            font-size: 1.1rem;
         }
     </style>
 </head>
@@ -55,7 +72,10 @@
 
 <nav>
     <div class="logo">JY 3D STUDIO</div>
-    <div class="nav-links"><a href="index.html">Collection</a></div>
+    <div class="nav-links">
+        <a href="index.html">Collection</a>
+        <a href="custom.html">Custom Design</a>
+    </div>
 </nav>
 
 <div class="product-flex">
@@ -69,23 +89,28 @@
         
         <label>Select Color</label>
         <select id="item-color">
-            <option>Dark Blue</option>
-            <option>Deep Purple</option>
-            <option>Forest Green</option>
-            <option>Yellow</option>
-            <option>Orange</option>
+            <option value="Dark Blue">Dark Blue</option>
+            <option value="Deep Purple">Deep Purple</option>
+            <option value="Forest Green">Forest Green</option>
+            <option value="Yellow">Yellow</option>
+            <option value="Orange">Orange</option>
             <option value="White">White (Limited Stock)</option>
         </select>
 
-        <label>Target Size (Width/Height in mm)</label>
-        <input type="number" id="size-input" value="80" oninput="calcItemPrice()">
+        <label>Adjust Size (Slide to scale)</label>
+        <input type="range" id="size-slider" min="40" max="250" value="80" step="5" oninput="calcItemPrice()">
+        
+        <div class="size-stats">
+            <span><span id="inch-display">3.1</span>"</span>
+            <span><span id="mm-display">80</span>mm</span>
+        </div>
         
         <div id="size-warning" class="surcharge-warning">
-            ⚠️ <strong>Multi-Part Assembly:</strong> Sizes over 100mm require manual assembly. A $10 fee has been added.
+            ⚠️ <strong>Multi-Part Assembly:</strong> Since this exceeds 4 inches (100mm), it will be printed in sections. A $10 assembly fee is included in the total.
         </div>
 
         <label>Personalization & Tweaks (Notes)</label>
-        <textarea id="item-notes" rows="4" placeholder="Ex: Add name 'Alex' to base, or make the walls 2mm thicker..."></textarea>
+        <textarea id="item-notes" rows="4" placeholder="Ex: Add name 'Alex' to base, or make the walls thicker..."></textarea>
 
         <button class="buy-btn" onclick="addItemToOrder()">Add to Order Slip</button>
     </div>
@@ -93,35 +118,54 @@
 
 <script>
     function calcItemPrice() {
-        let price = 15;
-        const size = document.getElementById('size-input').value;
+        const slider = document.getElementById('size-slider');
+        const mmDisplay = document.getElementById('mm-display');
+        const inchDisplay = document.getElementById('inch-display');
         const warning = document.getElementById('size-warning');
-        const display = document.getElementById('item-total');
+        const priceDisplay = document.getElementById('item-total');
 
-        if (size > 100) {
-            price += 10;
+        let mmValue = parseInt(slider.value);
+        let inchValue = (mmValue * 0.0393701).toFixed(1);
+        
+        mmDisplay.innerText = mmValue;
+        inchDisplay.innerText = inchValue;
+
+        let finalPrice = 15;
+
+        // Logic check for the 100mm limit
+        if (mmValue > 100) {
+            finalPrice += 10;
             warning.style.display = 'block';
         } else {
             warning.style.display = 'none';
         }
 
-        display.innerText = `$${price}.00`;
+        priceDisplay.innerText = `$${finalPrice}.00`;
     }
 
     function addItemToOrder() {
         let cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
-        const item = {
+        
+        const sizeString = document.getElementById('mm-display').innerText + "mm (" + 
+                           document.getElementById('inch-display').innerText + "in)";
+
+        const newItem = {
             name: "Geometric Vase v1",
             color: document.getElementById('item-color').value,
-            size: document.getElementById('size-input').value + "mm",
+            size: sizeString,
             notes: document.getElementById('item-notes').value || "No tweaks",
             price: document.getElementById('item-total').innerText
         };
-        cart.push(item);
+
+        cart.push(newItem);
         localStorage.setItem('jy_cart', JSON.stringify(cart));
+        
         alert("Added to your order! Redirecting to shop...");
         window.location.href = 'index.html';
     }
+
+    // Run once on load to set initial state
+    window.onload = calcItemPrice;
 </script>
 
 </body>
