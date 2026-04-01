@@ -3,126 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Internal Production Monitor | JY 3D</title>
+    <title>Staff Production | JY 3D Studio</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        :root {
-            --bg: #010409;
-            --card: #0d1117;
-            --accent: #58a6ff;
-            --border: #30363d;
-            --success: #238636;
-            --error: #f85149;
-        }
-
-        body { background-color: var(--bg); color: white; font-family: -apple-system, sans-serif; }
-        .admin-container { max-width: 1200px; margin: 20px auto; padding: 20px; }
+        :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --accent: #58a6ff; }
+        body { background: var(--bg); color: white; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
         
-        .header { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 20px; }
+        .import-section { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 10px; margin-bottom: 30px; }
+        textarea { width: 100%; height: 80px; background: #010409; color: #8b949e; border: 1px solid var(--border); padding: 10px; border-radius: 6px; margin-bottom: 10px; font-family: monospace; }
         
-        .import-box { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 30px; }
-        textarea { width: 100%; height: 80px; background: #010409; color: #8b949e; border: 1px solid var(--border); border-radius: 6px; padding: 10px; margin-bottom: 10px; font-family: monospace; }
-
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
-
-        .order-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; position: relative; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 10px; position: relative; }
         
-        .status-pill { position: absolute; top: 20px; right: 20px; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; border: 1px solid; }
-        .status-pending { color: #d29922; border-color: #d29922; background: rgba(210,153,34,0.1); }
-        .status-printing { color: var(--accent); border-color: var(--accent); background: rgba(88,166,255,0.1); }
-        .status-done { color: var(--success); border-color: var(--success); background: rgba(35,134,54,0.1); }
-
-        .detail { margin: 12px 0; font-size: 0.9rem; }
-        .label { color: #8b949e; font-size: 0.7rem; text-transform: uppercase; display: block; margin-bottom: 2px; }
-
-        .calc-box { background: #161b22; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid var(--border); }
-        .calc-input { width: 60px; padding: 5px; background: #010409; border: 1px solid var(--border); color: white; border-radius: 4px; }
+        .status-btn { background: #21262d; border: 1px solid var(--border); color: #c9d1d9; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; margin-right: 5px; }
+        .status-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
         
-        .profit-text { color: var(--success); font-weight: bold; margin-top: 10px; display: block; }
-
-        .btn-group { display: flex; gap: 8px; margin-top: 15px; }
-        .btn { flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: white; cursor: pointer; font-size: 0.75rem; }
-        .btn:hover { background: #21262d; }
-        .btn-del { border-color: var(--error); color: var(--error); }
+        .price-tag { font-weight: bold; color: var(--accent); font-size: 1.2rem; }
+        .detail-row { margin: 10px 0; font-size: 0.9rem; border-bottom: 1px solid #21262d; padding-bottom: 5px; }
+        .label { color: #8b949e; font-size: 0.7rem; text-transform: uppercase; display: block; }
     </style>
 </head>
 <body>
 
-<div class="admin-container">
-    <div class="header">
-        <h1>Private Production Dashboard</h1>
-        <button class="btn" onclick="localStorage.removeItem('staff_orders'); location.reload();" style="width: auto;">Wipe All Data</button>
-    </div>
-
-    <div class="import-box">
+<div class="container">
+    <h1>JY Production Dashboard</h1>
+    
+    <div class="import-section">
         <label class="label">Paste Work Order from Email</label>
-        <textarea id="raw-input" placeholder="Paste the text block here..."></textarea>
-        <button class="buy-btn" onclick="importOrder()">Create Job Card</button>
+        <textarea id="raw-input" placeholder="Paste the text from Formspree here..."></textarea>
+        <button class="buy-btn" onclick="processOrder()">+ Load into Pipeline</button>
     </div>
 
-    <div class="dashboard-grid" id="grid"></div>
+    <div class="grid" id="order-grid"></div>
 </div>
 
 <script>
-    let orders = JSON.parse(localStorage.getItem('staff_orders')) || [];
+    let pipeline = JSON.parse(localStorage.getItem('jy_pipeline')) || [];
 
-    function importOrder() {
+    function processOrder() {
         const text = document.getElementById('raw-input').value;
-        if(!text) return;
+        if (!text) return;
 
-        const obj = {
+        // Extracting data from your email format
+        const entry = {
             id: Date.now(),
-            title: text.match(/PRODUCT: (.*)/)?.[1] || "New Request",
-            specs: `Color: ${text.match(/COLOR: (.*)/)?.[1] || 'N/A'} | Size: ${text.match(/SIZE: (.*)/)?.[1] || 'N/A'}`,
-            notes: text.match(/NOTES: (.*)/)?.[1] || "None",
-            price: text.match(/PRICE: \$(.*)/)?.[1] || "0.00",
-            status: "Pending",
-            grams: 0
+            name: text.match(/PRODUCT: (.*)/)?.[1] || "Unnamed Item",
+            specs: text.match(/COLOR: (.*)/)?.[1] + " | " + text.match(/SIZE: (.*)/)?.[1],
+            notes: text.match(/NOTES: (.*)/)?.[1] || "No notes",
+            price: text.match(/PRICE: (.*)/)?.[1] || "$0.00",
+            status: "Pending"
         };
 
-        orders.push(obj);
+        pipeline.push(entry);
         save();
         document.getElementById('raw-input').value = '';
         render();
     }
 
     function render() {
-        const grid = document.getElementById('grid');
+        const grid = document.getElementById('order-grid');
         grid.innerHTML = '';
         
-        orders.forEach((o, i) => {
-            const cost = (o.grams * 0.02).toFixed(2); // Assuming $20/kg filament ($0.02 per gram)
-            const profit = (o.price - cost).toFixed(2);
-
+        pipeline.forEach((order, index) => {
             grid.innerHTML += `
-                <div class="order-card">
-                    <div class="status-pill status-${o.status.toLowerCase()}">${o.status}</div>
-                    <h3 style="margin-top:0;">${o.title}</h3>
+                <div class="card">
+                    <h3 style="margin-top:0">${order.name}</h3>
+                    <div class="detail-row"><span class="label">Specs</span> ${order.specs}</div>
+                    <div class="detail-row"><span class="label">Instructions</span> ${order.notes}</div>
+                    <div class="detail-row"><span class="label">Payment Due</span> <span class="price-tag">${order.price}</span></div>
                     
-                    <div class="detail"><span class="label">Specs</span>${o.specs}</div>
-                    <div class="detail"><span class="label">Notes</span>${o.notes}</div>
-                    
-                    <div class="calc-box">
-                        <span class="label">Slicer Estimate (Grams)</span>
-                        <input type="number" class="calc-input" value="${o.grams}" onchange="updateGrams(${i}, this.value)"> g
-                        <span class="profit-text">Estimated Profit: $${profit}</span>
-                        <small style="color:#484f58">Cost of plastic: ~$${cost}</small>
-                    </div>
-
-                    <div class="btn-group">
-                        <button class="btn" onclick="setStatus(${i}, 'Printing')">Start</button>
-                        <button class="btn" onclick="setStatus(${i}, 'Done')">Finish</button>
-                        <button class="btn btn-del" onclick="deleteOrder(${i})">Archive</button>
+                    <div style="margin-top:15px;">
+                        <button class="status-btn ${order.status === 'Pending' ? 'active' : ''}" onclick="updateStatus(${index}, 'Pending')">Pending</button>
+                        <button class="status-btn ${order.status === 'Printing' ? 'active' : ''}" onclick="updateStatus(${index}, 'Printing')">Printing</button>
+                        <button class="status-btn" onclick="archive(${index})" style="float:right; border-color:#f85149; color:#f85149;">Done/Archive</button>
                     </div>
                 </div>
             `;
         });
     }
 
-    function updateGrams(i, val) { orders[i].grams = val; save(); render(); }
-    function setStatus(i, s) { orders[i].status = s; save(); render(); }
-    function deleteOrder(i) { orders.splice(i, 1); save(); render(); }
-    function save() { localStorage.setItem('staff_orders', JSON.stringify(orders)); }
+    function updateStatus(index, s) { pipeline[index].status = s; save(); render(); }
+    function archive(index) { pipeline.splice(index, 1); save(); render(); }
+    function save() { localStorage.setItem('jy_pipeline', JSON.stringify(pipeline)); }
 
     window.onload = render;
 </script>
