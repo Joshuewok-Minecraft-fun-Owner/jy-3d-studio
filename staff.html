@@ -3,118 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Production | JY 3D Studio</title>
+    <title>Production Pipeline | JY 3D</title>
     <link rel="stylesheet" href="style.css">
     <style>
         :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --accent: #58a6ff; }
         body { background: var(--bg); color: white; font-family: sans-serif; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
         
-        .live-status { 
-            display: flex; align-items: center; gap: 10px; 
-            font-size: 0.8rem; color: #3fb950; margin-bottom: 20px; 
-            background: rgba(63, 185, 80, 0.1); width: fit-content;
-            padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(63, 185, 80, 0.3);
-        }
-        .pulse { width: 8px; height: 8px; background: #3fb950; border-radius: 50%; animation: pulse-animation 2s infinite; }
-        @keyframes pulse-animation { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .live-tag { background: rgba(63, 185, 80, 0.1); color: #3fb950; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; border: 1px solid rgba(63, 185, 80, 0.3); }
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
-        .card { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 12px; position: relative; transition: 0.2s; }
-        .card:hover { border-color: var(--accent); }
-
-        .label { color: #8b949e; font-size: 0.7rem; text-transform: uppercase; display: block; margin-top: 12px; }
-        .price-display { font-size: 1.4rem; color: var(--accent); font-weight: bold; margin-top: 10px; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 25px; border-radius: 12px; position: relative; }
         
-        .item-list { background: #0d1117; padding: 10px; border-radius: 6px; margin-top: 5px; font-size: 0.85rem; border: 1px solid #21262d; }
-
-        .btn-archive { 
-            margin-top: 20px; width: 100%; padding: 10px; 
-            background: transparent; border: 1px solid #f85149; 
-            color: #f85149; border-radius: 6px; cursor: pointer;
-            font-weight: bold; transition: 0.2s;
+        .label { color: #8b949e; font-size: 0.7rem; text-transform: uppercase; display: block; margin-top: 15px; letter-spacing: 0.5px; }
+        .item-box { background: #0d1117; padding: 12px; border-radius: 8px; margin-top: 8px; border: 1px solid #21262d; font-size: 0.9rem; }
+        
+        .complete-btn { 
+            margin-top: 25px; width: 100%; padding: 12px; 
+            background: #238636; color: white; border: none; 
+            border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s;
         }
-        .btn-archive:hover { background: #f85149; color: white; }
+        .complete-btn:hover { background: #2ea043; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="live-status">
-        <div class="pulse"></div> LIVE DATA CONNECTED
+    <div class="header-flex">
+        <h1>Production Pipeline</h1>
+        <div class="live-tag">● LIVE SYNC ACTIVE</div>
     </div>
-    <h1>Staff Production Pipeline</h1>
-    <p style="color: #8b949e; margin-bottom: 30px;">Orders appear here automatically the moment a customer submits their slip.</p>
 
     <div class="grid" id="order-grid">
-        <p style="color: #8b949e;">Waiting for incoming orders...</p>
+        <p style="color:#8b949e;">Connecting to Firestore...</p>
     </div>
 </div>
 
 <script type="module">
-    // Import the tools from your config file
-    import { db, collection, onSnapshot, query, orderBy, deleteDoc, doc } from './firebase-config.js';
+    import { db, collection, onSnapshot, query, where, orderBy, updateDoc, doc } from './firebase-config.js';
 
     const grid = document.getElementById('order-grid');
 
-    // Create a query that sorts by the newest orders first
-    const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
+    // QUERY: Only Active, Newest First
+    const q = query(
+        collection(db, "orders"), 
+        where("status", "==", "active"),
+        orderBy("timestamp", "desc")
+    );
 
-    // LISTEN for changes in real-time
     onSnapshot(q, (snapshot) => {
         if (snapshot.empty) {
-            grid.innerHTML = '<p style="color: #8b949e;">The pipeline is currently empty.</p>';
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #8b949e; border: 2px dashed #30363d; border-radius: 12px;">No active prints. Relax or design something new!</div>';
             return;
         }
 
-        grid.innerHTML = ''; // Clear existing cards
+        grid.innerHTML = '';
 
         snapshot.forEach((orderDoc) => {
             const data = orderDoc.data();
             const id = orderDoc.id;
 
-            // Handle multiple items in a single order
             const itemsHtml = data.items.map(item => `
-                <div style="margin-bottom: 8px; border-bottom: 1px solid #21262d; padding-bottom: 5px;">
+                <div style="margin-bottom:10px; border-bottom:1px solid #21262d; padding-bottom:5px;">
                     <strong>${item.name}</strong><br>
-                    <span style="color:#8b949e;">${item.size} | ${item.color}</span>
+                    <span style="font-size:0.8rem; color:#8b949e;">${item.size} | ${item.color}</span>
                 </div>
             `).join('');
 
             grid.innerHTML += `
                 <div class="card">
-                    <div style="font-size: 0.75rem; color: #8b949e; margin-bottom: 15px;">
-                        ORDER ID: ${id.substring(0,8)}...
-                    </div>
-                    
-                    <span class="label">Customer</span>
-                    <div style="font-weight:bold;">${data.customerName}</div>
-                    <div style="color:var(--accent); font-size: 0.85rem;">${data.customerEmail}</div>
+                    <h3 style="margin:0;">${data.customerName}</h3>
+                    <code style="font-size:0.7rem; color:var(--accent);">${data.customerEmail}</code>
 
-                    <span class="label">Manifest</span>
-                    <div class="item-list">${itemsHtml}</div>
+                    <span class="label">Print Manifest</span>
+                    <div class="item-box">${itemsHtml}</div>
 
-                    <span class="label">Total Estimate</span>
-                    <div class="price-display">${data.totalPrice || '$' + calculateTotal(data.items)}</div>
+                    <span class="label">Quoted Total</span>
+                    <div style="font-size:1.5rem; font-weight:900; color:var(--accent); margin-top:5px;">${data.totalPrice}</div>
 
-                    <button class="btn-archive" onclick="archiveJob('${id}')">Complete & Archive</button>
+                    <button class="complete-btn" onclick="markComplete('${id}')">Mark as Completed</button>
                 </div>
             `;
         });
     });
 
-    // Helper to calculate total if it wasn't saved directly
-    function calculateTotal(items) {
-        return items.reduce((sum, item) => sum + parseFloat(item.price.replace('$', '')), 0).toFixed(2);
-    }
-
-    // Function to delete from Firebase
-    window.archiveJob = async (id) => {
-        if(confirm("Are you sure this print is finished? It will be removed from the pipeline.")) {
+    window.markComplete = async (id) => {
+        if(confirm("Move this order to records? It will disappear from the active pipeline.")) {
             try {
-                await deleteDoc(doc(db, "orders", id));
+                const orderRef = doc(db, "orders", id);
+                await updateDoc(orderRef, {
+                    status: "completed",
+                    completedAt: new Date()
+                });
             } catch (err) {
-                alert("Error archiving: " + err.message);
+                alert("Update failed: " + err.message);
             }
         }
     };

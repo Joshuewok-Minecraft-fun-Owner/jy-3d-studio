@@ -5,93 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout | JY 3D Studio</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .checkout-container { max-width: 800px; margin: 40px auto; padding: 20px; }
-        .order-summary { background: var(--card); border-radius: 12px; padding: 25px; border: 1px solid #30363d; margin-bottom: 30px; }
-        .cart-item { 
-            display: flex; justify-content: space-between; 
-            padding: 15px 0; border-bottom: 1px solid #21262d; 
-        }
-        .cart-item:last-child { border-bottom: none; }
-        .item-info h4 { margin: 0; color: #58a6ff; }
-        .item-info p { margin: 5px 0; font-size: 0.85rem; color: #8b949e; }
-        
-        .customer-form { background: var(--card); border-radius: 12px; padding: 25px; border: 1px solid #30363d; }
-        input, textarea { 
-            width: 100%; padding: 12px; margin-top: 8px; margin-bottom: 15px;
-            background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 6px; 
-            box-sizing: border-box; font-family: inherit;
-        }
-        .total-row { display: flex; justify-content: space-between; font-size: 1.5rem; font-weight: bold; margin-top: 20px; padding-top: 20px; border-top: 2px solid #30363d; }
-        
-        .staff-note { background: rgba(88, 166, 255, 0.1); color: #58a6ff; padding: 15px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 20px; border: 1px solid #388bfd; }
-    </style>
 </head>
 <body>
 
 <nav>
     <div class="logo">JY 3D STUDIO</div>
-    <div class="nav-links"><a href="index.html">Return to Collection</a></div>
+    <div class="nav-links"><a href="index.html">Back to Shop</a></div>
 </nav>
 
-<div class="checkout-container">
-    <h2>Review Your Order Slip</h2>
-    
-    <div class="order-summary">
-        <div id="display-cart">
+<div style="max-width: 600px; margin: 50px auto; padding: 30px; background: #0d1117; border-radius: 12px; border: 1px solid #30363d;">
+    <h2>Finalize Your Order Slip</h2>
+    <p style="color: #8b949e; margin-bottom: 25px;">Submit your details below. I will review the design and email you with payment instructions.</p>
+
+    <form id="checkout-form">
+        <label style="display:block; color:#8b949e; font-size:0.9rem;">Full Name</label>
+        <input type="text" id="cust-name" required style="width:100%; padding:12px; margin:8px 0 20px 0; background:#010409; border:1px solid #30363d; color:white; border-radius:6px;">
+
+        <label style="display:block; color:#8b949e; font-size:0.9rem;">Email Address</label>
+        <input type="email" id="cust-email" required style="width:100%; padding:12px; margin:8px 0 20px 0; background:#010409; border:1px solid #30363d; color:white; border-radius:6px;">
+
+        <div id="order-summary" style="background:#161b22; padding:15px; border-radius:8px; margin-bottom:25px; border:1px solid #30363d;">
             </div>
-        <div class="total-row">
-            <span>Total Estimate:</span>
-            <span id="final-total">$0.00</span>
-        </div>
-    </div>
 
-    <div class="customer-form">
-        <h3>Shipping & Contact</h3>
-        <div class="staff-note">
-            <strong>Process:</strong> Once submitted, I'll review these specs on my staff subsite. I will email you with final payment details (Zelle/Venmo) once I confirm your design is ready for the printer.
-        </div>
-
-        <form id="order-form" action="https://formspree.io/f/mqegbrrp" method="POST">
-            <label>Full Name</label>
-            <input type="text" name="name" required placeholder="John Doe">
-
-            <label>Email Address</label>
-            <input type="email" name="email" required placeholder="john@example.com">
-
-            <label>Shipping Address</label>
-            <textarea name="address" rows="3" required placeholder="123 Printing Lane, NY 10001"></textarea>
-
-            <input type="hidden" name="cart_details" id="hidden-cart-data">
-            <input type="hidden" name="order_total" id="hidden-total">
-
-            <button type="submit" class="buy-btn" style="width: 100%; font-size: 1.1rem;">Submit Order to Joshua</button>
-        </form>
-    </div>
+        <button type="submit" class="buy-btn" style="width:100%; padding:15px; font-size:1.1rem;">Submit Order to Studio</button>
+    </form>
 </div>
 
 <script type="module">
     import { db, collection, addDoc } from './firebase-config.js';
 
-    window.submitOrder = async function() {
-        const cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
+    // 1. Load Summary
+    const cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
+    const summary = document.getElementById('order-summary');
+    let total = 0;
+
+    if(cart.length === 0) {
+        summary.innerHTML = "Your slip is empty.";
+    } else {
+        cart.forEach(item => {
+            summary.innerHTML += `<div style="display:flex; justify-content:between; margin-bottom:10px; font-size:0.9rem;">
+                <span style="flex:1;">${item.name}</span>
+                <span style="color:#58a6ff;">${item.price}</span>
+            </div>`;
+            total += parseFloat(item.price.replace('$', ''));
+        });
+        summary.innerHTML += `<div style="border-top:1px solid #30363d; margin-top:10px; padding-top:10px; font-weight:bold; display:flex; justify-content:space-between;">
+            <span>Estimated Total:</span>
+            <span>$${total.toFixed(2)}</span>
+        </div>`;
+    }
+
+    // 2. Handle Firebase Submission
+    document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
         
+        const btn = e.target.querySelector('button');
+        btn.innerText = "Syncing with Studio...";
+        btn.disabled = true;
+
         try {
-            // This sends the data to your Staff Subsite automatically
             await addDoc(collection(db, "orders"), {
-                customerName: document.querySelector('[name="name"]').value,
-                customerEmail: document.querySelector('[name="email"]').value,
+                customerName: document.getElementById('cust-name').value,
+                customerEmail: document.getElementById('cust-email').value,
                 items: cart,
+                totalPrice: `$${total.toFixed(2)}`,
+                status: "active", // Required for filtering
                 timestamp: new Date()
             });
-            
-            alert("Order sent to Joshua!");
+
+            alert("Success! Your order is in the pipeline. I'll email you shortly.");
             localStorage.removeItem('jy_cart');
             window.location.href = "index.html";
-        } catch (e) {
-            console.error("Error: ", e);
+        } catch (err) {
+            alert("Error: " + err.message);
+            btn.innerText = "Submit Order to Studio";
+            btn.disabled = false;
         }
-    }
+    });
 </script>
 
 </body>
