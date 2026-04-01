@@ -2,49 +2,60 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Staff Pipeline</title>
+    <title>Production Pipeline | JY 3D</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; padding: 20px; }
+        .card { background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 10px; }
+        .item-tag { background: #0d1117; padding: 5px 10px; border-radius: 4px; display: block; margin-top: 5px; font-size: 0.9rem; border: 1px solid #21262d; }
+        .done-btn { width: 100%; margin-top: 20px; padding: 10px; background: #238636; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    </style>
 </head>
-<body style="background:#0d1117; color:white; font-family:sans-serif; padding:40px;">
+<body style="background:#0d1117; color:white; font-family:sans-serif;">
 
-    <h1>Active Production Pipeline</h1>
-    <div id="grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:20px;">
-        Loading orders...
+<div style="max-width: 1200px; margin: auto; padding: 40px 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1>Active Production Pipeline</h1>
+        <span style="color: #3fb950; font-size: 0.8rem;">● LIVE SYNC ACTIVE</span>
     </div>
+    <div id="order-grid" class="grid">Loading jobs...</div>
+</div>
 
 <script type="module">
     import { db, collection, onSnapshot, query, where, orderBy, updateDoc, doc } from './firebase-config.js';
 
-    const grid = document.getElementById('grid');
-
-    // Listen for ACTIVE orders
+    const grid = document.getElementById('order-grid');
+    
+    // Only fetch orders where status is "active"
     const q = query(collection(db, "orders"), where("status", "==", "active"), orderBy("timestamp", "desc"));
 
     onSnapshot(q, (snapshot) => {
         grid.innerHTML = '';
-        if (snapshot.empty) {
-            grid.innerHTML = "No active orders.";
+        if(snapshot.empty) {
+            grid.innerHTML = "<p style='color:#8b949e;'>Pipeline is empty. Ready for new orders.</p>";
             return;
         }
 
         snapshot.forEach((orderDoc) => {
             const data = orderDoc.data();
             const id = orderDoc.id;
-            const items = data.items.map(i => `<li>${i.name}</li>`).join('');
+            const items = data.items.map(i => `<span class="item-tag">${i.name}</span>`).join('');
 
             grid.innerHTML += `
-                <div style="background:#161b22; border:1px solid #30363d; padding:20px; border-radius:10px;">
-                    <h3>${data.customerName}</h3>
-                    <p>${data.customerEmail}</p>
-                    <ul>${items}</ul>
-                    <button onclick="window.markDone('${id}')" style="background:#238636; color:white; border:none; padding:10px; width:100%; cursor:pointer; border-radius:4px;">Mark Completed</button>
+                <div class="card">
+                    <h3 style="margin:0">${data.customerName}</h3>
+                    <p style="color:#58a6ff; font-size:0.8rem; margin-top:5px;">${data.customerEmail}</p>
+                    <div style="margin-top:15px;">${items}</div>
+                    <button class="done-btn" onclick="archiveOrder('${id}')">Mark as Completed</button>
                 </div>
             `;
         });
     });
 
-    window.markDone = async (id) => {
-        await updateDoc(doc(db, "orders", id), { status: "completed" });
+    window.archiveOrder = async (id) => {
+        if(confirm("Mark this job as completed?")) {
+            await updateDoc(doc(db, "orders", id), { status: "completed" });
+        }
     };
 </script>
 </body>
