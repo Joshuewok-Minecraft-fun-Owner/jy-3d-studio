@@ -2,106 +2,50 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Production Pipeline | JY 3D</title>
+    <title>Staff Pipeline</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --accent: #58a6ff; }
-        body { background: var(--bg); color: white; font-family: sans-serif; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        
-        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .live-tag { background: rgba(63, 185, 80, 0.1); color: #3fb950; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; border: 1px solid rgba(63, 185, 80, 0.3); }
-
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
-        .card { background: var(--card); border: 1px solid var(--border); padding: 25px; border-radius: 12px; position: relative; }
-        
-        .label { color: #8b949e; font-size: 0.7rem; text-transform: uppercase; display: block; margin-top: 15px; letter-spacing: 0.5px; }
-        .item-box { background: #0d1117; padding: 12px; border-radius: 8px; margin-top: 8px; border: 1px solid #21262d; font-size: 0.9rem; }
-        
-        .complete-btn { 
-            margin-top: 25px; width: 100%; padding: 12px; 
-            background: #238636; color: white; border: none; 
-            border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s;
-        }
-        .complete-btn:hover { background: #2ea043; }
-    </style>
 </head>
-<body>
+<body style="background:#0d1117; color:white; font-family:sans-serif; padding:40px;">
 
-<div class="container">
-    <div class="header-flex">
-        <h1>Production Pipeline</h1>
-        <div class="live-tag">● LIVE SYNC ACTIVE</div>
+    <h1>Active Production Pipeline</h1>
+    <div id="grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:20px;">
+        Loading orders...
     </div>
-
-    <div class="grid" id="order-grid">
-        <p style="color:#8b949e;">Connecting to Firestore...</p>
-    </div>
-</div>
 
 <script type="module">
     import { db, collection, onSnapshot, query, where, orderBy, updateDoc, doc } from './firebase-config.js';
 
-    const grid = document.getElementById('order-grid');
+    const grid = document.getElementById('grid');
 
-    // QUERY: Only Active, Newest First
-    const q = query(
-        collection(db, "orders"), 
-        where("status", "==", "active"),
-        orderBy("timestamp", "desc")
-    );
+    // Listen for ACTIVE orders
+    const q = query(collection(db, "orders"), where("status", "==", "active"), orderBy("timestamp", "desc"));
 
     onSnapshot(q, (snapshot) => {
+        grid.innerHTML = '';
         if (snapshot.empty) {
-            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #8b949e; border: 2px dashed #30363d; border-radius: 12px;">No active prints. Relax or design something new!</div>';
+            grid.innerHTML = "No active orders.";
             return;
         }
-
-        grid.innerHTML = '';
 
         snapshot.forEach((orderDoc) => {
             const data = orderDoc.data();
             const id = orderDoc.id;
-
-            const itemsHtml = data.items.map(item => `
-                <div style="margin-bottom:10px; border-bottom:1px solid #21262d; padding-bottom:5px;">
-                    <strong>${item.name}</strong><br>
-                    <span style="font-size:0.8rem; color:#8b949e;">${item.size} | ${item.color}</span>
-                </div>
-            `).join('');
+            const items = data.items.map(i => `<li>${i.name}</li>`).join('');
 
             grid.innerHTML += `
-                <div class="card">
-                    <h3 style="margin:0;">${data.customerName}</h3>
-                    <code style="font-size:0.7rem; color:var(--accent);">${data.customerEmail}</code>
-
-                    <span class="label">Print Manifest</span>
-                    <div class="item-box">${itemsHtml}</div>
-
-                    <span class="label">Quoted Total</span>
-                    <div style="font-size:1.5rem; font-weight:900; color:var(--accent); margin-top:5px;">${data.totalPrice}</div>
-
-                    <button class="complete-btn" onclick="markComplete('${id}')">Mark as Completed</button>
+                <div style="background:#161b22; border:1px solid #30363d; padding:20px; border-radius:10px;">
+                    <h3>${data.customerName}</h3>
+                    <p>${data.customerEmail}</p>
+                    <ul>${items}</ul>
+                    <button onclick="window.markDone('${id}')" style="background:#238636; color:white; border:none; padding:10px; width:100%; cursor:pointer; border-radius:4px;">Mark Completed</button>
                 </div>
             `;
         });
     });
 
-    window.markComplete = async (id) => {
-        if(confirm("Move this order to records? It will disappear from the active pipeline.")) {
-            try {
-                const orderRef = doc(db, "orders", id);
-                await updateDoc(orderRef, {
-                    status: "completed",
-                    completedAt: new Date()
-                });
-            } catch (err) {
-                alert("Update failed: " + err.message);
-            }
-        }
+    window.markDone = async (id) => {
+        await updateDoc(doc(db, "orders", id), { status: "completed" });
     };
 </script>
-
 </body>
 </html>

@@ -9,12 +9,13 @@
 <body>
 
 <nav>
-    <div class="logo">JY 3D STUDIO</div>
-    <div class="nav-links">
-        <a href="index.html">Collection</a>
-        <a href="custom.html">Custom Design</a>
-        <a href="#" class="cart-btn">Cart (0)</a>
+    <div class="cart-icon" onclick="goToCheckout()" style="cursor:pointer; position:relative;">
+        🛒 Slip (<span id="cart-count">0</span>)
     </div>
+    
+    <button class="buy-btn" onclick="addToCart('Geometric Vase', '$25.00')">Add to Slip</button>
+    
+    <script src="main.js"></script>
 </nav>
 
 <header class="hero">
