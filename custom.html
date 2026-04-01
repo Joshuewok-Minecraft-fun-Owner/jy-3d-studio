@@ -25,13 +25,15 @@
             background: rgba(255, 171, 0, 0.1); border: 1px solid #ffab00; 
             color: #ffab00; padding: 15px; border-radius: 8px; 
             margin-top: 20px; display: none; font-size: 0.85rem;
+            line-height: 1.4;
         }
 
         .price-breakdown { 
-            background: #1c2128; padding: 20px; border-radius: 10px; 
+            background: #1c2128; padding: 25px; border-radius: 10px; 
             margin-top: 30px; border: 1px solid #30363d; text-align: center;
         }
         .grand-total { font-size: 3rem; color: #58a6ff; font-weight: 900; margin: 10px 0; }
+        #price-explanation { font-size: 0.9rem; color: #8b949e; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -43,17 +45,17 @@
 
 <div class="custom-container">
     <h2>Project Brief: Custom Commission</h2>
-    <p style="color: #8b949e;">I specialize in translating 2D concepts into 3D printable geometry. Please be as detailed as possible.</p>
+    <p style="color: #8b949e;">Personalized design work tailored to your specs. I handle the CAD modeling and the physical production.</p>
 
     <div class="section-header">1. The Concept</div>
-    <label>Project Name / Headline</label>
-    <input type="text" id="proj-title" placeholder="e.g. Minimalist Headphone Stand with Logo">
+    <label>Project Title</label>
+    <input type="text" id="proj-title" placeholder="e.g. Custom Desk Organizer / Logo Plate">
 
-    <label>Reference Link (Pinterest, Google Drive, Imgur)</label>
-    <input type="text" id="ref-link" placeholder="Paste link to sketches or inspiration here">
+    <label>Reference Link (Pinterest, Drive, Imgur)</label>
+    <input type="text" id="ref-link" placeholder="Link to sketches, photos, or inspiration">
 
-    <div class="section-header">2. Technical Instructions</div>
-    <label>Target Dimensions (Linked for precision)</label>
+    <div class="section-header">2. Technical Instructions & Details</div>
+    <label>Target Dimensions (Linked Precision)</label>
     <div class="dual-input">
         <div class="input-wrapper">
             <input type="number" id="in-size" step="0.1" value="3.1" oninput="syncUnits('in')">
@@ -67,27 +69,28 @@
     </div>
 
     <div id="size-warning" class="warning-banner">
-        ⚠️ <strong>Surcharge Applied:</strong> Designs exceeding 100mm require multi-part printing and post-processing. +$10 added to material cost.
+        ⚠️ <strong>Multi-Part Production:</strong> Designs exceeding 100mm require split-printing and manual assembly. A $10 surcharge has been added to production.
     </div>
 
-    <label>Required Features / Details</label>
-    <textarea id="proj-details" rows="6" placeholder="Instructions: List any specific mounting holes, wall thicknesses, textures, or 'moving parts' you expect in the design..."></textarea>
+    <label>Detailed Instructions</label>
+    <textarea id="proj-details" rows="6" placeholder="Please describe: wall thickness, mounting holes, specific textures, or how the part needs to function..."></textarea>
 
-    <div class="section-header">3. Environmental Usage</div>
-    <label>Where will this be used?</label>
+    <div class="section-header">3. Material & Environment</div>
+    <label>Intended Usage</label>
     <select id="use-case" onchange="checkUsage()">
         <option value="indoor">Indoor (Home/Office Decor)</option>
-        <option value="display">Display Case / PC Interior</option>
-        <option value="outdoor">Outdoor / Car Interior (Direct Sunlight)</option>
+        <option value="display">PC Case / Shelved Display</option>
+        <option value="outdoor">Outdoor / Car Dash (Direct Sun)</option>
     </select>
+    
     <div id="material-warning" class="warning-banner" style="border-color: #f85149; color: #f85149; background: rgba(248, 81, 73, 0.1);">
-        🛑 <strong>PLA Warning:</strong> Standard PLA will warp or melt in temperatures above 50°C (122°F). High-heat environments are not recommended for this material.
+        🛑 <strong>PLA Temperature Limit:</strong> Standard PLA begins to soften at 50°C (122°F). It is not recommended for permanent outdoor or automotive use.
     </div>
 
     <div class="price-breakdown">
-        <div style="text-transform: uppercase; font-size: 0.7rem; color: #8b949e; letter-spacing: 1px;">Estimated Design + Print Total</div>
+        <div style="text-transform: uppercase; font-size: 0.7rem; color: #8b949e; letter-spacing: 1px;">Estimated Commission Total</div>
         <div class="grand-total" id="display-price">$25.00</div>
-        <p style="font-size: 0.8rem; color: #484f58;">Includes $15 Design Fee + $10 Base Material Cost</p>
+        <div id="price-explanation">$15 Design Fee + $10 Production Fee</div>
     </div>
 
     <button class="buy-btn" style="width:100%; margin-top:25px; padding: 20px; font-size: 1.2rem;" onclick="addCommissionToCart()">Add Custom Project to Order Slip</button>
@@ -96,9 +99,11 @@
 <script>
     function syncUnits(unit) {
         const inIn = document.getElementById('in-size');
-        const mmIn = document.getElementById('mm-size');
+        const mmIn = document.getElementById('input-mm') || document.getElementById('mm-size');
         const warning = document.getElementById('size-warning');
         const priceDisplay = document.getElementById('display-price');
+        const explanation = document.getElementById('price-explanation');
+        
         let mmVal;
 
         if(unit === 'in') {
@@ -109,14 +114,19 @@
             inIn.value = (mmVal * 0.03937).toFixed(1);
         }
 
-        let base = 25;
+        let designFee = 15;
+        let productionFee = 10;
+
         if(mmVal > 100) {
-            base += 10;
+            productionFee = 20; 
             warning.style.display = 'block';
         } else {
             warning.style.display = 'none';
         }
-        priceDisplay.innerText = `$${base}.00`;
+
+        let total = designFee + productionFee;
+        priceDisplay.innerText = `$${total}.00`;
+        explanation.innerText = `$${designFee} Design Fee + $${productionFee} Production & Material`;
     }
 
     function checkUsage() {
@@ -127,17 +137,17 @@
     function addCommissionToCart() {
         let cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
         const item = {
-            name: "CUSTOM: " + document.getElementById('proj-title').value,
+            name: "CUSTOM: " + (document.getElementById('proj-title').value || "Unnamed Project"),
             size: document.getElementById('mm-size').value + "mm (" + document.getElementById('in-size').value + "in)",
-            color: "Consultation Required",
-            notes: "Type: " + document.getElementById('use-case').value + 
-                   "\nLink: " + document.getElementById('ref-link').value + 
-                   "\nInstructions: " + document.getElementById('proj-details').value,
+            color: "Pending Consultation",
+            notes: "Usage: " + document.getElementById('use-case').value + 
+                   "\nRef: " + document.getElementById('ref-link').value + 
+                   "\nDetails: " + document.getElementById('proj-details').value,
             price: document.getElementById('display-price').innerText
         };
         cart.push(item);
         localStorage.setItem('jy_cart', JSON.stringify(cart));
-        alert("Custom brief added! Go to checkout to send this to Joshua.");
+        alert("Custom brief added! Proceed to checkout to submit your request.");
         window.location.href = 'index.html';
     }
 
