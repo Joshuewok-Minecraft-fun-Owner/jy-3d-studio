@@ -2,157 +2,53 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Design Brief | JY 3D Studio</title>
+    <title>Custom Print | JY 3D</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .custom-container { max-width: 800px; margin: 40px auto; padding: 30px; background: var(--card); border-radius: 15px; border: 1px solid #30363d; }
-        .section-header { color: #58a6ff; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1.5px; margin: 30px 0 15px 0; border-bottom: 1px solid #21262d; padding-bottom: 5px; }
-        
-        label { display: block; font-size: 0.9rem; margin-top: 15px; color: #8b949e; }
-        input, select, textarea { 
-            width: 100%; padding: 12px; margin-top: 8px; 
-            background: #0d1117; border: 1px solid #30363d; 
-            color: white; border-radius: 6px; box-sizing: border-box;
-            font-family: inherit;
-        }
-
-        .dual-input { display: flex; gap: 15px; align-items: center; }
-        .input-wrapper { flex: 1; position: relative; }
-        .unit-tag { position: absolute; right: 12px; top: 38px; color: #484f58; font-size: 0.8rem; }
-
-        .warning-banner { 
-            background: rgba(255, 171, 0, 0.1); border: 1px solid #ffab00; 
-            color: #ffab00; padding: 15px; border-radius: 8px; 
-            margin-top: 20px; display: none; font-size: 0.85rem;
-            line-height: 1.4;
-        }
-
-        .price-breakdown { 
-            background: #1c2128; padding: 25px; border-radius: 10px; 
-            margin-top: 30px; border: 1px solid #30363d; text-align: center;
-        }
-        .grand-total { font-size: 3rem; color: #58a6ff; font-weight: 900; margin: 10px 0; }
-        #price-explanation { font-size: 0.9rem; color: #8b949e; margin-top: 5px; }
-    </style>
 </head>
-<body>
+<body style="background:#0d1117; color:white; font-family:sans-serif; padding:20px;">
 
-<nav>
-    <div class="logo">JY 3D STUDIO</div>
-    <div class="nav-links"><a href="index.html">Back to Shop</a></div>
-</nav>
+<div style="max-width: 500px; margin: 40px auto; background:#161b22; padding:30px; border-radius:12px; border:1px solid #30363d;">
+    <h2>Custom Print Brief</h2>
+    <form id="custom-form">
+        <label>Object Description</label>
+        <textarea id="notes" placeholder="What should I print?" required style="width:100%; height:100px; margin:10px 0; background:#010409; color:white; border:1px solid #30363d;"></textarea>
+        
+        <label>Material/Color</label>
+        <input type="text" id="color" placeholder="e.g. Matte Black" style="width:100%; padding:10px; margin:10px 0; background:#010409; color:white; border:1px solid #30363d;">
 
-<div class="custom-container">
-    <h2>Project Brief: Custom Commission</h2>
-    <p style="color: #8b949e;">Personalized design work tailored to your specs. I handle the CAD modeling and the physical production.</p>
+        <hr border="1" color="#30363d" style="margin:20px 0;">
 
-    <div class="section-header">1. The Concept</div>
-    <label>Project Title</label>
-    <input type="text" id="proj-title" placeholder="e.g. Custom Desk Organizer / Logo Plate">
-
-    <label>Reference Link (Pinterest, Drive, Imgur)</label>
-    <input type="text" id="ref-link" placeholder="Link to sketches, photos, or inspiration">
-
-    <div class="section-header">2. Technical Instructions & Details</div>
-    <label>Target Dimensions (Linked Precision)</label>
-    <div class="dual-input">
-        <div class="input-wrapper">
-            <input type="number" id="in-size" step="0.1" value="3.1" oninput="syncUnits('in')">
-            <span class="unit-tag">in</span>
-        </div>
-        <div style="color:#444;">=</div>
-        <div class="input-wrapper">
-            <input type="number" id="mm-size" value="80" oninput="syncUnits('mm')">
-            <span class="unit-tag">mm</span>
-        </div>
-    </div>
-
-    <div id="size-warning" class="warning-banner">
-        ⚠️ <strong>Multi-Part Production:</strong> Designs exceeding 100mm require split-printing and manual assembly. A $10 surcharge has been added to production.
-    </div>
-
-    <label>Detailed Instructions</label>
-    <textarea id="proj-details" rows="6" placeholder="Please describe: wall thickness, mounting holes, specific textures, or how the part needs to function..."></textarea>
-
-    <div class="section-header">3. Material & Environment</div>
-    <label>Intended Usage</label>
-    <select id="use-case" onchange="checkUsage()">
-        <option value="indoor">Indoor (Home/Office Decor)</option>
-        <option value="display">PC Case / Shelved Display</option>
-        <option value="outdoor">Outdoor / Car Dash (Direct Sun)</option>
-    </select>
-    
-    <div id="material-warning" class="warning-banner" style="border-color: #f85149; color: #f85149; background: rgba(248, 81, 73, 0.1);">
-        🛑 <strong>PLA Temperature Limit:</strong> Standard PLA begins to soften at 50°C (122°F). It is not recommended for permanent outdoor or automotive use.
-    </div>
-
-    <div class="price-breakdown">
-        <div style="text-transform: uppercase; font-size: 0.7rem; color: #8b949e; letter-spacing: 1px;">Estimated Commission Total</div>
-        <div class="grand-total" id="display-price">$25.00</div>
-        <div id="price-explanation">$15 Design Fee + $10 Production Fee</div>
-    </div>
-
-    <button class="buy-btn" style="width:100%; margin-top:25px; padding: 20px; font-size: 1.2rem;" onclick="addCommissionToCart()">Add Custom Project to Order Slip</button>
+        <input type="text" id="name" placeholder="Your Name" required style="width:100%; padding:10px; margin-bottom:10px; background:#010409; color:white; border:1px solid #30363d;">
+        <input type="email" id="email" placeholder="Your Email" required style="width:100%; padding:10px; margin-bottom:20px; background:#010409; color:white; border:1px solid #30363d;">
+        
+        <button type="submit" style="width:100%; padding:15px; background:#58a6ff; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Submit Brief to Studio</button>
+    </form>
 </div>
 
-<script>
-    function syncUnits(unit) {
-        const inIn = document.getElementById('in-size');
-        const mmIn = document.getElementById('input-mm') || document.getElementById('mm-size');
-        const warning = document.getElementById('size-warning');
-        const priceDisplay = document.getElementById('display-price');
-        const explanation = document.getElementById('price-explanation');
-        
-        let mmVal;
+<script type="module">
+    import { db, collection, addDoc } from './firebase-config.js';
 
-        if(unit === 'in') {
-            mmVal = Math.round(inIn.value / 0.03937);
-            mmIn.value = mmVal;
-        } else {
-            mmVal = mmIn.value;
-            inIn.value = (mmVal * 0.03937).toFixed(1);
+    document.getElementById('custom-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            await addDoc(collection(db, "orders"), {
+                customerName: document.getElementById('name').value,
+                customerEmail: document.getElementById('email').value,
+                items: [{ 
+                    name: "CUSTOM REQUEST", 
+                    price: "TBD", 
+                    color: document.getElementById('color').value 
+                }],
+                notes: document.getElementById('notes').value,
+                status: "active",
+                timestamp: new Date()
+            });
+            alert("Custom brief sent! Joshua will review it.");
+            window.location.href = "index.html";
+        } catch (err) {
+            console.error(err);
         }
-
-        let designFee = 15;
-        let productionFee = 10;
-
-        if(mmVal > 100) {
-            productionFee = 20; 
-            warning.style.display = 'block';
-        } else {
-            warning.style.display = 'none';
-        }
-
-        let total = designFee + productionFee;
-        priceDisplay.innerText = `$${total}.00`;
-        explanation.innerText = `$${designFee} Design Fee + $${productionFee} Production & Material`;
-    }
-
-    function checkUsage() {
-        const val = document.getElementById('use-case').value;
-        document.getElementById('material-warning').style.display = (val === 'outdoor') ? 'block' : 'none';
-    }
-
-    function addCommissionToCart() {
-        let cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
-        const item = {
-            name: "CUSTOM: " + (document.getElementById('proj-title').value || "Unnamed Project"),
-            size: document.getElementById('mm-size').value + "mm (" + document.getElementById('in-size').value + "in)",
-            color: "Pending Consultation",
-            notes: "Usage: " + document.getElementById('use-case').value + 
-                   "\nRef: " + document.getElementById('ref-link').value + 
-                   "\nDetails: " + document.getElementById('proj-details').value,
-            price: document.getElementById('display-price').innerText
-        };
-        cart.push(item);
-        localStorage.setItem('jy_cart', JSON.stringify(cart));
-        alert("Custom brief added! Proceed to checkout to submit your request.");
-        window.location.href = 'index.html';
-    }
-
-    window.onload = function() { syncUnits('mm'); };
+    });
 </script>
-
 </body>
 </html>

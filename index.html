@@ -2,50 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JY 3D Design Studio</title>
+    <title>JY 3D Studio</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <nav>
-    <div class="cart-icon" onclick="goToCheckout()" style="cursor:pointer; position:relative;">
-        🛒 Slip (<span id="cart-count">0</span>)
+    <div class="logo">JY 3D STUDIO</div>
+    <div class="nav-links">
+        <a href="index.html">Collection</a>
+        <a href="custom.html">Custom Design</a>
+        <a href="checkout.html">Cart</a>
     </div>
-    
-    <button class="buy-btn" onclick="addToCart('Geometric Vase', '$25.00')">Add to Slip</button>
-    
-    <script src="main.js"></script>
 </nav>
 
-<header class="hero">
+<header style="text-align:center; padding:100px 20px;">
     <h1>Original Geometry. Digital Craft.</h1>
-    <p>Premium STL designs and FDM prints in Regular PLA.</p>
+    <p>Premium 3D prints from Yorba Linda, CA.</p>
 </header>
 
-<section class="grid">
-    <div class="card">
-        <div class="img-placeholder">IMAGE COMING SOON</div>
-        <div class="card-info">
-            <h3>Geometric Planter v1</h3>
-            <p class="price">$15.00</p>
-            <button class="buy-btn">Add to Order</button>
-        </div>
-    </div>
-
-    <div class="card custom-card">
-        <div class="img-placeholder" style="border: 1px dashed #444;">YOUR ART HERE</div>
-        <div class="card-info">
-            <h3>Custom Commission</h3>
-            <p class="price">From $25.00</p>
-            <a href="custom.html" class="buy-btn" style="text-align: center; text-decoration: none; display: block;">Design Now</a>
-        </div>
+<section style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:20px; padding:40px;">
+    <div class="card" style="background:#161b22; padding:20px; border-radius:10px; border:1px solid #30363d;">
+        <h3>Geometric Vase</h3>
+        <p>$25.00</p>
+        <button class="buy-btn" onclick="addToCart('Geometric Vase', '$25.00')" style="width:100%; padding:10px; background:#58a6ff; border:none; border-radius:5px; color:white; cursor:pointer;">Add to Slip</button>
     </div>
 </section>
 
-<footer>
-    <p>Standard PLA | Max Build: 100x120x100mm | Hand-crafted by Joshua</p>
-</footer>
-
+<script src="main.js"></script>
 </body>
 </html>
