@@ -28,7 +28,7 @@
         
         label { font-size: 0.85rem; color: #8b949e; margin-bottom: -5px; margin-top: 10px;}
         
-        input[type="number"], input[type="text"], select, textarea { 
+        input, select, textarea { 
             width: 100%; 
             padding: 12px; 
             background: #0d1117; 
@@ -39,11 +39,20 @@
             box-sizing: border-box;
         }
 
-        /* Slider Styling */
-        input[type="range"] {
-            width: 100%;
-            margin: 15px 0;
-            cursor: pointer;
+        .size-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .size-field { flex: 1; position: relative; }
+        .unit-label { 
+            position: absolute; 
+            right: 12px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            color: #484f58; 
+            font-size: 0.8rem;
+            pointer-events: none;
         }
 
         .price-tag { font-size: 2.5rem; color: #58a6ff; font-weight: bold; margin: 10px 0; }
@@ -57,14 +66,6 @@
             border: 1px solid #ffab00;
             display: none;
             line-height: 1.4;
-        }
-
-        .size-stats {
-            display: flex;
-            justify-content: space-between;
-            font-weight: bold;
-            color: #eee;
-            font-size: 1.1rem;
         }
     </style>
 </head>
@@ -97,16 +98,21 @@
             <option value="White">White (Limited Stock)</option>
         </select>
 
-        <label>Adjust Size (Slide to scale)</label>
-        <input type="range" id="size-slider" min="40" max="250" value="80" step="5" oninput="calcItemPrice()">
-        
-        <div class="size-stats">
-            <span><span id="inch-display">3.1</span>"</span>
-            <span><span id="mm-display">80</span>mm</span>
+        <label>Target Size (linked units for precision)</label>
+        <div class="size-input-group">
+            <div class="size-field">
+                <input type="number" id="input-inches" step="0.1" value="3.1" oninput="convertSize('in')">
+                <span class="unit-label">in</span>
+            </div>
+            <div style="color:#444;">=</div>
+            <div class="size-field">
+                <input type="number" id="input-mm" step="1" value="80" oninput="convertSize('mm')">
+                <span class="unit-label">mm</span>
+            </div>
         </div>
         
         <div id="size-warning" class="surcharge-warning">
-            ⚠️ <strong>Multi-Part Assembly:</strong> Since this exceeds 4 inches (100mm), it will be printed in sections. A $10 assembly fee is included in the total.
+            ⚠️ <strong>Multi-Part Assembly:</strong> Since this exceeds 100mm (approx 4"), it requires printing in sections. A $10 assembly fee is included.
         </div>
 
         <label>Personalization & Tweaks (Notes)</label>
@@ -117,22 +123,23 @@
 </div>
 
 <script>
-    function calcItemPrice() {
-        const slider = document.getElementById('size-slider');
-        const mmDisplay = document.getElementById('mm-display');
-        const inchDisplay = document.getElementById('inch-display');
+    function convertSize(unit) {
+        const inchInput = document.getElementById('input-inches');
+        const mmInput = document.getElementById('input-mm');
         const warning = document.getElementById('size-warning');
         const priceDisplay = document.getElementById('item-total');
 
-        let mmValue = parseInt(slider.value);
-        let inchValue = (mmValue * 0.0393701).toFixed(1);
-        
-        mmDisplay.innerText = mmValue;
-        inchDisplay.innerText = inchValue;
+        let mmValue;
+
+        if (unit === 'in') {
+            mmValue = Math.round(inchInput.value / 0.0393701);
+            mmInput.value = mmValue;
+        } else {
+            mmValue = mmInput.value;
+            inchInput.value = (mmValue * 0.0393701).toFixed(1);
+        }
 
         let finalPrice = 15;
-
-        // Logic check for the 100mm limit
         if (mmValue > 100) {
             finalPrice += 10;
             warning.style.display = 'block';
@@ -146,8 +153,8 @@
     function addItemToOrder() {
         let cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
         
-        const sizeString = document.getElementById('mm-display').innerText + "mm (" + 
-                           document.getElementById('inch-display').innerText + "in)";
+        const sizeString = document.getElementById('input-mm').value + "mm (" + 
+                           document.getElementById('input-inches').value + "in)";
 
         const newItem = {
             name: "Geometric Vase v1",
@@ -164,8 +171,8 @@
         window.location.href = 'index.html';
     }
 
-    // Run once on load to set initial state
-    window.onload = calcItemPrice;
+    // Initialize display on load
+    window.onload = function() { convertSize('mm'); };
 </script>
 
 </body>
