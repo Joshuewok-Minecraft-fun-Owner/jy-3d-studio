@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | JY 3D Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .checkout-container { max-width: 800px; margin: 40px auto; padding: 20px; }
+        .order-summary { background: var(--card); border-radius: 12px; padding: 25px; border: 1px solid #30363d; margin-bottom: 30px; }
+        .cart-item { 
+            display: flex; justify-content: space-between; 
+            padding: 15px 0; border-bottom: 1px solid #21262d; 
+        }
+        .cart-item:last-child { border-bottom: none; }
+        .item-info h4 { margin: 0; color: #58a6ff; }
+        .item-info p { margin: 5px 0; font-size: 0.85rem; color: #8b949e; }
+        
+        .customer-form { background: var(--card); border-radius: 12px; padding: 25px; border: 1px solid #30363d; }
+        input, textarea { 
+            width: 100%; padding: 12px; margin-top: 8px; margin-bottom: 15px;
+            background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 6px; 
+            box-sizing: border-box; font-family: inherit;
+        }
+        .total-row { display: flex; justify-content: space-between; font-size: 1.5rem; font-weight: bold; margin-top: 20px; padding-top: 20px; border-top: 2px solid #30363d; }
+        
+        .staff-note { background: rgba(88, 166, 255, 0.1); color: #58a6ff; padding: 15px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 20px; border: 1px solid #388bfd; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">JY 3D STUDIO</div>
+    <div class="nav-links"><a href="index.html">Return to Collection</a></div>
+</nav>
+
+<div class="checkout-container">
+    <h2>Review Your Order Slip</h2>
+    
+    <div class="order-summary">
+        <div id="display-cart">
+            </div>
+        <div class="total-row">
+            <span>Total Estimate:</span>
+            <span id="final-total">$0.00</span>
+        </div>
+    </div>
+
+    <div class="customer-form">
+        <h3>Shipping & Contact</h3>
+        <div class="staff-note">
+            <strong>Process:</strong> Once submitted, I'll review these specs on my staff subsite. I will email you with final payment details (Zelle/Venmo) once I confirm your design is ready for the printer.
+        </div>
+
+        <form id="order-form" action="https://formspree.io/f/mqegbrrp" method="POST">
+            <label>Full Name</label>
+            <input type="text" name="name" required placeholder="John Doe">
+
+            <label>Email Address</label>
+            <input type="email" name="email" required placeholder="john@example.com">
+
+            <label>Shipping Address</label>
+            <textarea name="address" rows="3" required placeholder="123 Printing Lane, NY 10001"></textarea>
+
+            <input type="hidden" name="cart_details" id="hidden-cart-data">
+            <input type="hidden" name="order_total" id="hidden-total">
+
+            <button type="submit" class="buy-btn" style="width: 100%; font-size: 1.1rem;">Submit Order to Joshua</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function loadCart() {
+        const cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
+        const container = document.getElementById('display-cart');
+        const totalDisplay = document.getElementById('final-total');
+        const hiddenCart = document.getElementById('hidden-cart-data');
+        const hiddenTotal = document.getElementById('hidden-total');
+        
+        if (cart.length === 0) {
+            container.innerHTML = "<p style='color:#8b949e;'>Your slip is empty.</p>";
+            return;
+        }
+
+        let totalSum = 0;
+        let workOrderText = "--- NEW ORDER FROM JY STUDIO ---\n\n";
+
+        container.innerHTML = cart.map((item, index) => {
+            const priceNum = parseFloat(item.price.replace('$', ''));
+            totalSum += priceNum;
+            
+            // This is what JOSHUA sees in the email
+            workOrderText += `[ITEM ${index+1}]\n`;
+            workOrderText += `PRODUCT: ${item.name}\n`;
+            workOrderText += `COLOR: ${item.color}\n`;
+            workOrderText += `SIZE: ${item.size}\n`;
+            workOrderText += `NOTES: ${item.notes}\n`;
+            workOrderText += `PRICE: ${item.price}\n`;
+            workOrderText += `----------------------------\n\n`;
+
+            return `
+                <div class="cart-item">
+                    <div class="item-info">
+                        <h4>${item.name}</h4>
+                        <p><strong>Color:</strong> ${item.color} | <strong>Size:</strong> ${item.size}</p>
+                        <p><strong>Notes:</strong> ${item.notes}</p>
+                    </div>
+                    <div style="font-weight:bold; color:#58a6ff;">${item.price}</div>
+                </div>
+            `;
+        }).join('');
+
+        totalDisplay.innerText = `$${totalSum.toFixed(2)}`;
+        hiddenCart.value = workOrderText;
+        hiddenTotal.value = `$${totalSum.toFixed(2)}`;
+    }
+
+    // This clears the cart ONLY after the user sees the "Success" page from Formspree
+    // For now, we leave it so they don't lose data if the internet blips
+    window.onload = loadCart;
+</script>
+
+</body>
+</html>
