@@ -61,9 +61,12 @@
 
         // 1. Render the Cart Summary
         let total = 0;
+        let finalTotalString = "";
+
         if (cart.length === 0) {
             summaryContainer.innerHTML = "<p style='color:#8b949e;'>Cart is empty.</p>";
             document.getElementById('confirm-btn').disabled = true;
+            totalDisplay.innerText = "$0.00";
         } else {
             cart.forEach(item => {
                 const itemDiv = document.createElement('div');
@@ -71,10 +74,16 @@
                 itemDiv.innerHTML = `<span>${item.name}</span><span>${item.price}</span>`;
                 summaryContainer.appendChild(itemDiv);
                 
-                // Strip "$" and convert to number for total
-                total += parseFloat(item.price.replace('$', ''));
+                // Only add to total if the price is a real number
+                const priceValue = parseFloat(item.price.replace('$', ''));
+                if (!isNaN(priceValue)) {
+                    total += priceValue;
+                }
             });
-            totalDisplay.innerText = `$${total.toFixed(2)}`;
+
+            // If total is 0 because everything is TBD, display "Pending Quote"
+            finalTotalString = total > 0 ? `$${total.toFixed(2)}` : "Quote Pending";
+            totalDisplay.innerText = finalTotalString;
         }
 
         // 2. Handle Order Submission
@@ -92,7 +101,7 @@
                 customerEmail: customerEmail,
                 address: document.getElementById('cust-address').value,
                 items: cart.map(item => ({ ...item, image_url: item.image_url || '' })),
-                totalPrice: `$${total.toFixed(2)}`,
+                totalPrice: finalTotalString, // Use the calculated string
                 status: "active",
                 timestamp: new Date()
             };

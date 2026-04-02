@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custom Request | JY 3D Studio</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -27,7 +26,7 @@
     <div style="max-width: 500px; margin: 50px auto; padding: 20px;">
         <div style="background: #161b22; border: 1px solid #30363d; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
             <h2 style="margin-top: 0; color: white;">Custom Project</h2>
-            <p style="color: #8b949e; font-size: 0.9rem; margin-bottom: 25px;">Have a specific geometry in mind? Drop the link or describe your idea below.</p>
+            <p style="color: #8b949e; font-size: 0.9rem; margin-bottom: 25px;">Have a specific geometry in mind? Add your details here and we'll process your request at checkout.</p>
 
             <form id="custom-form">
                 <label style="color:#8b949e; font-size:0.75rem; text-transform: uppercase; letter-spacing: 1px;">STL / 3D Model Link</label>
@@ -45,74 +44,41 @@
                 <textarea id="notes" placeholder="Tell me about the size, color, and use case..." required 
                     style="width:100%; height:120px; padding:12px; margin:8px 0 25px 0; background:#010409; border:1px solid #30363d; color:white; border-radius:6px; resize: none;"></textarea>
                 
-                <hr style="border: 0; border-top: 1px solid #30363d; margin-bottom: 25px;">
-
-                <input type="text" id="name" placeholder="Your Name" required 
-                    style="width:100%; padding:12px; margin-bottom:12px; background:#010409; color:white; border:1px solid #30363d; border-radius:6px;">
-                
-                <input type="email" id="email" placeholder="Your Email Address" required 
-                    style="width:100%; padding:12px; margin-bottom:25px; background:#010409; color:white; border:1px solid #30363d; border-radius:6px;">
-                
                 <button type="submit" id="submit-btn" class="btn-blue" style="width:100%; font-size: 1rem; letter-spacing: 1px;">
-                    INITIALIZE REQUEST
+                    Add to Checkout
                 </button>
             </form>
         </div>
     </div>
 
     <script type="module">
-        import { db, collection, addDoc } from './firebase-config.js';
-        
-        // Initialize EmailJS with your Public Key
-        emailjs.init("YOUR_PUBLIC_KEY");
-
         const form = document.getElementById('custom-form');
-        const btn = document.getElementById('submit-btn');
 
-        form.addEventListener('submit', async (e) => {
+        form.addEventListener('submit', (e) => {
             e.preventDefault();
             
-            // Disable button to prevent double-submits
-            btn.innerText = "UPLOADING TO PIPELINE...";
-            btn.disabled = true;
-            btn.style.opacity = "0.7";
-
+            // 1. Get the data
             const needsDesign = document.getElementById('no-file').checked;
             const rawLink = document.getElementById('stl-link').value;
+            const notes = document.getElementById('notes').value;
 
-            const orderData = {
-                customerName: document.getElementById('name').value,
-                customerEmail: document.getElementById('email').value,
+            // 2. Create a "Custom Item" object
+            const customItem = {
+                name: "Custom 3D Print Request",
+                price: "TBD (Quote Pending)", // No price yet
+                image_url: "https://i.postimg.cc/SRM77fTp/JY_3D_Studio_Logo.png", // Use logo as placeholder
                 stlUrl: needsDesign ? "DESIGN_HELP_REQUIRED" : (rawLink || "NO_LINK_PROVIDED"),
-                notes: document.getElementById('notes').value,
-                status: "active",
-                type: "custom",
-                timestamp: new Date()
+                notes: notes,
+                id: Date.now()
             };
 
-            try {
-                // 1. Save to Firebase
-                const docRef = await addDoc(collection(db, "orders"), orderData);
-                
-                // 2. Trigger EmailJS Notification
-                await emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
-                    customerName: orderData.customerName,
-                    customerEmail: orderData.customerEmail,
-                    order_id: docRef.id,
-                    stlLink: orderData.stlUrl,
-                    notes: orderData.notes
-                });
+            // 3. Add to the existing cart
+            let cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
+            cart.push(customItem);
+            localStorage.setItem('jy_cart', JSON.stringify(cart));
 
-                // 3. Send customer to their live status page
-                window.location.href = `status.html?id=${docRef.id}`;
-
-            } catch (error) {
-                console.error("Submission failed:", error);
-                alert("Submission failed. Please check your connection.");
-                btn.innerText = "INITIALIZE REQUEST";
-                btn.disabled = false;
-                btn.style.opacity = "1";
-            }
+            // 4. Redirect to checkout to finish the bundle
+            window.location.href = 'checkout.html';
         });
     </script>
 </body>
