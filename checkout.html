@@ -53,7 +53,7 @@
     <script type="module">
         import { db, collection, addDoc } from './firebase-config.js';
         
-        emailjs.init("YOUR_PUBLIC_KEY");
+        emailjs.init("2Spf-O36MRmZJNqVo");
 
         const cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
         const summaryContainer = document.getElementById('cart-summary-list');
@@ -74,14 +74,12 @@
                 itemDiv.innerHTML = `<span>${item.name}</span><span>${item.price}</span>`;
                 summaryContainer.appendChild(itemDiv);
                 
-                // Only add to total if the price is a real number
                 const priceValue = parseFloat(item.price.replace('$', ''));
                 if (!isNaN(priceValue)) {
                     total += priceValue;
                 }
             });
 
-            // If total is 0 because everything is TBD, display "Pending Quote"
             finalTotalString = total > 0 ? `$${total.toFixed(2)}` : "Quote Pending";
             totalDisplay.innerText = finalTotalString;
         }
@@ -96,38 +94,61 @@
             const customerName = document.getElementById('cust-name').value;
             const customerEmail = document.getElementById('cust-email').value;
 
+            // This object is saved to FIREBASE - it contains all the data.
             const orderData = {
                 customerName: customerName,
                 customerEmail: customerEmail,
                 address: document.getElementById('cust-address').value,
-                items: cart.map(item => ({ ...item, image_url: item.image_url || '' })),
-                totalPrice: finalTotalString, // Use the calculated string
+                items: cart, // Save the original, full cart data
+                totalPrice: finalTotalString,
                 status: "active",
                 timestamp: new Date()
             };
+            
+            // **NEW**: This object is sent to EMAILJS - it's sanitized for the template.
+            const emailParams = {
+                customerName: customerName,
+                customerEmail: customerEmail,
+                totalPrice: finalTotalString,
+                // Map cart to a new array that matches the template's expected variables
+                items: cart.map(item => ({
+                    name: item.name || 'Unnamed Item',
+                    price: item.price || 'N/A',
+                    // Use a placeholder if image_url is missing, as the template requires it
+                    image_url: item.image_url || 'https://i.postimg.cc/8Cg0vC4Y/placeholder.png', 
+                    // Add color and size, even if blank, to match the template
+                    color: item.color || '',
+                    size: item.size || ''
+                }))
+            };
 
             try {
-                // Save to Firebase
+                // Step 1: Save the full order data to Firebase
                 const docRef = await addDoc(collection(db, "orders"), orderData);
+                
+                // Step 2: Add the new order ID to the email parameters
+                emailParams.order_id = docRef.id;
 
-                // Send Email via EmailJS
-                // Ensure your EmailJS template uses {{items}} to loop through products
-                await emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
-                    customerName: customerName,
-                    customerEmail: customerEmail,
-                    order_id: docRef.id,
-                    totalPrice: orderData.totalPrice,
-                    // Passing the array directly for Handlebars {{#each items}}
-                    items: orderData.items 
-                });
+                // Step 3: Send the sanitized data to EmailJS
+                await emailjs.send("jy3ddesign", "jy3dorder", emailParams);
 
-                // Clear Cart and Redirect
+                // Step 4: Clear cart and redirect
                 localStorage.removeItem('jy_cart');
                 window.location.href = `status.html?id=${docRef.id}`;
 
             } catch (error) {
-                console.error("Order Failed:", error);
-                alert("Order failed to process. Check console.");
+                console.error("Order Submission Failed:", error);
+                let errorMessage = "An unknown error occurred. Please check the developer console.";
+
+                // This provides a more detailed error from EmailJS if available
+                if (typeof error === 'object' && error.status && error.text) {
+                    errorMessage = `EmailJS Error ${error.status}: ${error.text}`;
+                } else if (error && error.message) {
+                    errorMessage = `Firebase/Network Error: ${error.message}`;
+                }
+                
+                alert(`Order failed to process. Reason: ${errorMessage}`);
+                
                 btn.disabled = false;
                 btn.innerText = "CONFIRM ORDER";
             }

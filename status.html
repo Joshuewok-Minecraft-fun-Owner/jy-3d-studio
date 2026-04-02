@@ -41,10 +41,24 @@
                     const d = s.data();
                     document.getElementById('cust-name').innerText = `Hi, ${d.customerName}`;
                     const b = document.getElementById('badge');
-                    b.innerText = d.status === 'active' ? "IN PRODUCTION" : "PRINT FINISHED";
-                    b.style.background = d.status === 'active' ? "rgba(88,166,255,0.1)" : "rgba(56,232,120,0.1)";
-                    b.style.color = d.status === 'active' ? "#58a6ff" : "#3fb950";
-                    document.getElementById('msg').innerText = d.status === 'active' ? "Your geometry is currently on the build plate." : "Success! Your print is complete.";
+                    const msg = document.getElementById('msg');
+                    
+                    if (d.status === 'active') {
+                        b.innerText = "Order Received";
+                        msg.innerText = "In Queue";
+                        b.style.background = "rgba(88,166,255,0.1)";
+                        b.style.color = "#58a6ff";
+                    } else if (d.status === 'printing') {
+                        b.innerText = "In Production";
+                        msg.innerText = "On Build Plate";
+                        b.style.background = "rgba(255, 193, 7, 0.1)";
+                        b.style.color = "#ffc107";
+                    } else if (d.status === 'completed') {
+                        b.innerText = "Print Finished";
+                        msg.innerText = "Success! Your print is complete.";
+                        b.style.background = "rgba(56,232,120,0.1)";
+                        b.style.color = "#3fb950";
+                    }
                 }
             });
         }

@@ -28,7 +28,7 @@
 
     <script type="module">
         import { db, collection, onSnapshot, query, where, updateDoc, doc } from './firebase-config.js';
-        const q = query(collection(db, "orders"), where("status", "==", "active"));
+        const q = query(collection(db, "orders"), where("status", "in", ["active", "printing"]));
         
         onSnapshot(q, (snap) => {
             const grid = document.getElementById('staff-grid');
@@ -37,15 +37,27 @@
                 const data = d.data();
                 const card = document.createElement('div');
                 card.style = "background:#161b22; border:1px solid #30363d; padding:20px; border-radius:8px;";
+                
+                let buttons = '';
+                if (data.status === 'active') {
+                    buttons = `<button onclick="startPrinting(\'${d.id}\')" style="width:100%; margin-top:15px; padding:10px; background:#ffc107; color:black; border:none; border-radius:5px; cursor:pointer;">Start Printing</button>`;
+                } else if (data.status === 'printing') {
+                    buttons = `<button onclick="finish(\'${d.id}\')" style="width:100%; margin-top:15px; padding:10px; background:#238636; color:white; border:none; border-radius:5px; cursor:pointer;">Mark Finished</button>`;
+                }
+
                 card.innerHTML = `
                     <h3>${data.customerName}</h3>
                     <p>${data.customerEmail}</p>
                     <a href="${data.stlUrl}" target="_blank" style="color:#58a6ff;">Download Geometry</a>
-                    <button onclick="finish('${d.id}')" style="width:100%; margin-top:15px; padding:10px; background:#238636; color:white; border:none; border-radius:5px; cursor:pointer;">Mark Complete</button>
+                    ${buttons}
                 `;
                 grid.appendChild(card);
             });
         });
+
+        window.startPrinting = async (id) => {
+            await updateDoc(doc(db, "orders", id), { status: "printing" });
+        };
 
         window.finish = async (id) => {
             await updateDoc(doc(db, "orders", id), { status: "completed" });
