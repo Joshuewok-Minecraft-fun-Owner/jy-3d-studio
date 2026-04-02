@@ -1,5 +1,5 @@
 // main.js - The Shop Engine
-window.addToCart = function(name, price) {
+window.addToCart = function(name, price, image_url) {
     // 1. Get existing cart or start new one
     let cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
     
@@ -7,6 +7,7 @@ window.addToCart = function(name, price) {
     const item = {
         name: name,
         price: price,
+        image_url: image_url,
         id: Date.now()
     };
 

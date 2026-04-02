@@ -9,7 +9,8 @@ import {
     orderBy, 
     updateDoc, 
     doc,
-    deleteDoc
+    deleteDoc,
+    getDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -24,4 +25,4 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-export { db, collection, addDoc, onSnapshot, query, where, orderBy, updateDoc, doc, getDoc };
+export { db, collection, addDoc, onSnapshot, query, where, orderBy, updateDoc, doc, getDoc, deleteDoc };

@@ -2,14 +2,127 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Checkout | JY 3D</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | JY 3D Studio</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
-<body style="background:#0d1117; color:white;">
-    <div style="max-width: 600px; margin: 40px auto; padding: 20px;">
-        <h2>Order Summary</h2>
-        <div id="cart-list" style="background:#161b22; border:1px solid #30363d; border-radius:8px; padding:20px;"></div>
+<body>
+
+    <nav style="display: flex; align-items: center; justify-content: space-between; padding: 15px 30px; background: #161b22; border-bottom: 1px solid #30363d;">
+        <a href="index.html" style="text-decoration: none; display: flex; align-items: center;">
+            <img src="https://i.postimg.cc/SRM77fTp/JY_3D_Studio_Logo.png" alt="Logo" style="height: 40px; margin-right: 12px;">
+            <span style="color: white; font-weight: bold; font-size: 1.2rem;">JY 3D <span style="color: #58a6ff;">STUDIO</span></span>
+        </a>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <a href="index.html" style="color: #c9d1d9; text-decoration: none;">Collection</a>
+            <a href="custom.html" style="color: #c9d1d9; text-decoration: none;">Custom Request</a>
+            <a href="checkout.html" style="color: #c9d1d9; text-decoration: none; position: relative;">
+                Cart
+                <span id="cart-count" style="position: absolute; top: -8px; right: -15px; background: #58a6ff; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: bold;">0</span>
+            </a>
         </div>
+    </nav>
+
+    <div style="max-width: 800px; margin: 40px auto; padding: 20px; display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px;">
+        
+        <div style="background: #161b22; padding: 30px; border-radius: 12px; border: 1px solid #30363d;">
+            <h2 style="margin-top:0;">Shipping & Contact</h2>
+            <form id="checkout-form">
+                <input type="text" id="cust-name" placeholder="Full Name" required>
+                <input type="email" id="cust-email" placeholder="Email Address" required>
+                <textarea id="cust-address" placeholder="Shipping Address" required style="height: 80px; margin-top:10px;"></textarea>
+                
+                <button type="submit" id="confirm-btn" class="btn-blue" style="width:100%; margin-top:20px; font-size:1.1rem;">
+                    CONFIRM ORDER
+                </button>
+            </form>
+        </div>
+
+        <div style="background: #0d1117; padding: 20px; border-radius: 12px; border: 1px solid #30363d; height: fit-content;">
+            <h3 style="margin-top:0; font-size: 1rem; color: #8b949e;">YOUR CART</h3>
+            <div id="cart-summary-list"></div>
+            <hr style="border:0; border-top:1px solid #30363d; margin: 15px 0;">
+            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size: 1.2rem;">
+                <span>Total</span>
+                <span id="total-price">$0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db, collection, addDoc } from './firebase-config.js';
+        
+        emailjs.init("YOUR_PUBLIC_KEY");
+
+        const cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
+        const summaryContainer = document.getElementById('cart-summary-list');
+        const totalDisplay = document.getElementById('total-price');
+
+        // 1. Render the Cart Summary
+        let total = 0;
+        if (cart.length === 0) {
+            summaryContainer.innerHTML = "<p style='color:#8b949e;'>Cart is empty.</p>";
+            document.getElementById('confirm-btn').disabled = true;
+        } else {
+            cart.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.style = "display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.9rem;";
+                itemDiv.innerHTML = `<span>${item.name}</span><span>${item.price}</span>`;
+                summaryContainer.appendChild(itemDiv);
+                
+                // Strip "$" and convert to number for total
+                total += parseFloat(item.price.replace('$', ''));
+            });
+            totalDisplay.innerText = `$${total.toFixed(2)}`;
+        }
+
+        // 2. Handle Order Submission
+        document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('confirm-btn');
+            btn.innerText = "PROCESSING...";
+            btn.disabled = true;
+
+            const customerName = document.getElementById('cust-name').value;
+            const customerEmail = document.getElementById('cust-email').value;
+
+            const orderData = {
+                customerName: customerName,
+                customerEmail: customerEmail,
+                address: document.getElementById('cust-address').value,
+                items: cart.map(item => ({ ...item, image_url: item.image_url || '' })),
+                totalPrice: `$${total.toFixed(2)}`,
+                status: "active",
+                timestamp: new Date()
+            };
+
+            try {
+                // Save to Firebase
+                const docRef = await addDoc(collection(db, "orders"), orderData);
+
+                // Send Email via EmailJS
+                // Ensure your EmailJS template uses {{items}} to loop through products
+                await emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
+                    customerName: customerName,
+                    customerEmail: customerEmail,
+                    order_id: docRef.id,
+                    totalPrice: orderData.totalPrice,
+                    // Passing the array directly for Handlebars {{#each items}}
+                    items: orderData.items 
+                });
+
+                // Clear Cart and Redirect
+                localStorage.removeItem('jy_cart');
+                window.location.href = `status.html?id=${docRef.id}`;
+
+            } catch (error) {
+                console.error("Order Failed:", error);
+                alert("Order failed to process. Check console.");
+                btn.disabled = false;
+                btn.innerText = "CONFIRM ORDER";
+            }
+        });
+    </script>
 </body>
 </html>

@@ -5,9 +5,26 @@
     <title>Pipeline | JY 3D Staff</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body style="background:#0d1117; color:white; padding:40px;">
-    <h1 style="border-bottom:1px solid #30363d; padding-bottom:10px;">Production Pipeline</h1>
-    <div id="staff-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:20px; margin-top:20px;"></div>
+<body>
+    <nav style="display: flex; align-items: center; justify-content: space-between; padding: 15px 30px; background: #161b22; border-bottom: 1px solid #30363d;">
+        <a href="index.html" style="text-decoration: none; display: flex; align-items: center;">
+            <img src="https://i.postimg.cc/SRM77fTp/JY_3D_Studio_Logo.png" alt="Logo" style="height: 40px; margin-right: 12px;">
+            <span style="color: white; font-weight: bold; font-size: 1.2rem;">JY 3D <span style="color: #58a6ff;">STUDIO</span></span>
+        </a>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <a href="index.html" style="color: #c9d1d9; text-decoration: none;">Collection</a>
+            <a href="custom.html" style="color: #c9d1d9; text-decoration: none;">Custom Request</a>
+            <a href="checkout.html" style="color: #c9d1d9; text-decoration: none; position: relative;">
+                Cart
+                <span id="cart-count" style="position: absolute; top: -8px; right: -15px; background: #58a6ff; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: bold;">0</span>
+            </a>
+        </div>
+    </nav>
+
+    <div style="background:#0d1117; color:white; padding:40px;">
+        <h1 style="border-bottom:1px solid #30363d; padding-bottom:10px;">Production Pipeline</h1>
+        <div id="staff-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:20px; margin-top:20px;"></div>
+    </div>
 
     <script type="module">
         import { db, collection, onSnapshot, query, where, updateDoc, doc } from './firebase-config.js';

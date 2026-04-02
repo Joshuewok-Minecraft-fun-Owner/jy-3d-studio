@@ -2,53 +2,117 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Custom Request | JY 3D</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Request | JY 3D Studio</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
-<body style="background:#0d1117; color:white;">
-    <div style="max-width: 500px; margin: 60px auto; background:#161b22; padding:30px; border-radius:12px; border:1px solid #30363d;">
-        <h2>Custom STL Request</h2>
-        <form id="custom-form">
-            <label style="color:#8b949e; font-size:0.8rem;">GOOGLE DRIVE / DROPBOX LINK</label>
-            <input type="url" id="stl-link" placeholder="https://..." required style="width:100%; padding:12px; margin:10px 0 20px 0; background:#010409; border:1px solid #30363d; color:white; border-radius:6px;">
-            
-            <textarea id="notes" placeholder="Print notes (Color, Material, etc.)" style="width:100%; height:100px; padding:12px; margin-bottom:20px; background:#010409; border:1px solid #30363d; color:white; border-radius:6px;"></textarea>
-            
-            <input type="text" id="name" placeholder="Your Name" required style="width:100%; padding:12px; margin-bottom:10px; background:#010409; color:white; border:1px solid #30363d; border-radius:6px;">
-            <input type="email" id="email" placeholder="Your Email" required style="width:100%; padding:12px; margin-bottom:20px; background:#010409; color:white; border:1px solid #30363d; border-radius:6px;">
-            
-            <button type="submit" id="submit-btn" style="width:100%; padding:15px; background:#58a6ff; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Submit to Studio</button>
-        </form>
+<body>
+
+    <nav style="display: flex; align-items: center; justify-content: space-between; padding: 15px 30px; background: #161b22; border-bottom: 1px solid #30363d;">
+        <a href="index.html" style="text-decoration: none; display: flex; align-items: center;">
+            <img src="https://i.postimg.cc/SRM77fTp/JY_3D_Studio_Logo.png" alt="Logo" style="height: 40px; margin-right: 12px;">
+            <span style="color: white; font-weight: bold; font-size: 1.2rem;">JY 3D <span style="color: #58a6ff;">STUDIO</span></span>
+        </a>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <a href="index.html" style="color: #c9d1d9; text-decoration: none;">Collection</a>
+            <a href="custom.html" style="color: #c9d1d9; text-decoration: none;">Custom Request</a>
+            <a href="checkout.html" style="color: #c9d1d9; text-decoration: none; position: relative;">
+                Cart
+                <span id="cart-count" style="position: absolute; top: -8px; right: -15px; background: #58a6ff; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: bold;">0</span>
+            </a>
+        </div>
+    </nav>
+
+    <div style="max-width: 500px; margin: 50px auto; padding: 20px;">
+        <div style="background: #161b22; border: 1px solid #30363d; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <h2 style="margin-top: 0; color: white;">Custom Project</h2>
+            <p style="color: #8b949e; font-size: 0.9rem; margin-bottom: 25px;">Have a specific geometry in mind? Drop the link or describe your idea below.</p>
+
+            <form id="custom-form">
+                <label style="color:#8b949e; font-size:0.75rem; text-transform: uppercase; letter-spacing: 1px;">STL / 3D Model Link</label>
+                <input type="url" id="stl-link" placeholder="Google Drive, Dropbox, or Thingiverse link" 
+                    style="width:100%; padding:12px; margin:8px 0 12px 0; background:#010409; border:1px solid #30363d; color:white; border-radius:6px;">
+
+                <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 10px; background: rgba(88, 166, 255, 0.05); padding: 10px; border-radius: 6px; border: 1px dashed #30363d;">
+                    <input type="checkbox" id="no-file" style="width: auto; margin: 0; cursor: pointer;">
+                    <label for="no-file" style="color: #58a6ff; font-size: 0.85rem; cursor: pointer; user-select: none;">
+                        I don't have a file (I need design help)
+                    </label>
+                </div>
+
+                <label style="color:#8b949e; font-size:0.75rem; text-transform: uppercase; letter-spacing: 1px;">Project Notes</label>
+                <textarea id="notes" placeholder="Tell me about the size, color, and use case..." required 
+                    style="width:100%; height:120px; padding:12px; margin:8px 0 25px 0; background:#010409; border:1px solid #30363d; color:white; border-radius:6px; resize: none;"></textarea>
+                
+                <hr style="border: 0; border-top: 1px solid #30363d; margin-bottom: 25px;">
+
+                <input type="text" id="name" placeholder="Your Name" required 
+                    style="width:100%; padding:12px; margin-bottom:12px; background:#010409; color:white; border:1px solid #30363d; border-radius:6px;">
+                
+                <input type="email" id="email" placeholder="Your Email Address" required 
+                    style="width:100%; padding:12px; margin-bottom:25px; background:#010409; color:white; border:1px solid #30363d; border-radius:6px;">
+                
+                <button type="submit" id="submit-btn" class="btn-blue" style="width:100%; font-size: 1rem; letter-spacing: 1px;">
+                    INITIALIZE REQUEST
+                </button>
+            </form>
+        </div>
     </div>
 
     <script type="module">
         import { db, collection, addDoc } from './firebase-config.js';
+        
+        // Initialize EmailJS with your Public Key
         emailjs.init("YOUR_PUBLIC_KEY");
 
-        document.getElementById('custom-form').addEventListener('submit', async (e) => {
+        const form = document.getElementById('custom-form');
+        const btn = document.getElementById('submit-btn');
+
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('submit-btn');
-            btn.innerText = "Processing...";
             
+            // Disable button to prevent double-submits
+            btn.innerText = "UPLOADING TO PIPELINE...";
+            btn.disabled = true;
+            btn.style.opacity = "0.7";
+
+            const needsDesign = document.getElementById('no-file').checked;
+            const rawLink = document.getElementById('stl-link').value;
+
             const orderData = {
                 customerName: document.getElementById('name').value,
                 customerEmail: document.getElementById('email').value,
-                stlUrl: document.getElementById('stl-link').value,
+                stlUrl: needsDesign ? "DESIGN_HELP_REQUIRED" : (rawLink || "NO_LINK_PROVIDED"),
                 notes: document.getElementById('notes').value,
                 status: "active",
+                type: "custom",
                 timestamp: new Date()
             };
 
-            const docRef = await addDoc(collection(db, "orders"), orderData);
-            
-            await emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
-                customerName: orderData.customerName,
-                order_id: docRef.id,
-                stlLink: orderData.stlUrl
-            });
+            try {
+                // 1. Save to Firebase
+                const docRef = await addDoc(collection(db, "orders"), orderData);
+                
+                // 2. Trigger EmailJS Notification
+                await emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
+                    customerName: orderData.customerName,
+                    customerEmail: orderData.customerEmail,
+                    order_id: docRef.id,
+                    stlLink: orderData.stlUrl,
+                    notes: orderData.notes
+                });
 
-            window.location.href = `status.html?id=${docRef.id}`;
+                // 3. Send customer to their live status page
+                window.location.href = `status.html?id=${docRef.id}`;
+
+            } catch (error) {
+                console.error("Submission failed:", error);
+                alert("Submission failed. Please check your connection.");
+                btn.innerText = "INITIALIZE REQUEST";
+                btn.disabled = false;
+                btn.style.opacity = "1";
+            }
         });
     </script>
 </body>
