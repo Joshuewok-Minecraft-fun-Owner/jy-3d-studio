@@ -2,53 +2,54 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Custom Print | JY 3D</title>
+    <title>Custom Request | JY 3D</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
-<body style="background:#0d1117; color:white; font-family:sans-serif; padding:20px;">
+<body style="background:#0d1117; color:white;">
+    <div style="max-width: 500px; margin: 60px auto; background:#161b22; padding:30px; border-radius:12px; border:1px solid #30363d;">
+        <h2>Custom STL Request</h2>
+        <form id="custom-form">
+            <label style="color:#8b949e; font-size:0.8rem;">GOOGLE DRIVE / DROPBOX LINK</label>
+            <input type="url" id="stl-link" placeholder="https://..." required style="width:100%; padding:12px; margin:10px 0 20px 0; background:#010409; border:1px solid #30363d; color:white; border-radius:6px;">
+            
+            <textarea id="notes" placeholder="Print notes (Color, Material, etc.)" style="width:100%; height:100px; padding:12px; margin-bottom:20px; background:#010409; border:1px solid #30363d; color:white; border-radius:6px;"></textarea>
+            
+            <input type="text" id="name" placeholder="Your Name" required style="width:100%; padding:12px; margin-bottom:10px; background:#010409; color:white; border:1px solid #30363d; border-radius:6px;">
+            <input type="email" id="email" placeholder="Your Email" required style="width:100%; padding:12px; margin-bottom:20px; background:#010409; color:white; border:1px solid #30363d; border-radius:6px;">
+            
+            <button type="submit" id="submit-btn" style="width:100%; padding:15px; background:#58a6ff; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Submit to Studio</button>
+        </form>
+    </div>
 
-<div style="max-width: 500px; margin: 40px auto; background:#161b22; padding:30px; border-radius:12px; border:1px solid #30363d;">
-    <h2>Custom Print Brief</h2>
-    <form id="custom-form">
-        <label>Object Description</label>
-        <textarea id="notes" placeholder="What should I print?" required style="width:100%; height:100px; margin:10px 0; background:#010409; color:white; border:1px solid #30363d;"></textarea>
-        
-        <label>Material/Color</label>
-        <input type="text" id="color" placeholder="e.g. Matte Black" style="width:100%; padding:10px; margin:10px 0; background:#010409; color:white; border:1px solid #30363d;">
+    <script type="module">
+        import { db, collection, addDoc } from './firebase-config.js';
+        emailjs.init("YOUR_PUBLIC_KEY");
 
-        <hr border="1" color="#30363d" style="margin:20px 0;">
-
-        <input type="text" id="name" placeholder="Your Name" required style="width:100%; padding:10px; margin-bottom:10px; background:#010409; color:white; border:1px solid #30363d;">
-        <input type="email" id="email" placeholder="Your Email" required style="width:100%; padding:10px; margin-bottom:20px; background:#010409; color:white; border:1px solid #30363d;">
-        
-        <button type="submit" style="width:100%; padding:15px; background:#58a6ff; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Submit Brief to Studio</button>
-    </form>
-</div>
-
-<script type="module">
-    import { db, collection, addDoc } from './firebase-config.js';
-
-    document.getElementById('custom-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        try {
-            await addDoc(collection(db, "orders"), {
+        document.getElementById('custom-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            btn.innerText = "Processing...";
+            
+            const orderData = {
                 customerName: document.getElementById('name').value,
                 customerEmail: document.getElementById('email').value,
-                items: [{ 
-                    name: "CUSTOM REQUEST", 
-                    price: "TBD", 
-                    color: document.getElementById('color').value 
-                }],
+                stlUrl: document.getElementById('stl-link').value,
                 notes: document.getElementById('notes').value,
                 status: "active",
                 timestamp: new Date()
+            };
+
+            const docRef = await addDoc(collection(db, "orders"), orderData);
+            
+            await emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
+                customerName: orderData.customerName,
+                order_id: docRef.id,
+                stlLink: orderData.stlUrl
             });
-            alert("Custom brief sent! Joshua will review it.");
-            window.location.href = "index.html";
-        } catch (err) {
-            console.error(err);
-        }
-    });
-</script>
+
+            window.location.href = `status.html?id=${docRef.id}`;
+        });
+    </script>
 </body>
 </html>

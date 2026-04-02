@@ -1,82 +1,133 @@
+/* JY 3D Studio - Global Styles */
+
 :root {
-    --bg: #0d1117;
-    --card: #161b22;
-    --accent: #58a6ff;
-    --text: #c9d1d9;
+    --bg-dark: #0d1117;
+    --card-bg: #161b22;
+    --border-color: #30363d;
+    --text-main: #e6edf3;
+    --text-dim: #8b949e;
+    --electric-blue: #58a6ff;
+    --accent-green: #238636;
+    --glow: 0 0 15px rgba(88, 166, 255, 0.3);
+}
+
+* {
+    box-sizing: border-box;
+    transition: all 0.2s ease-in-out;
 }
 
 body {
-    background-color: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    line-height: 1.6;
 }
 
-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 5%;
-    border-bottom: 1px solid #30363d;
+/* Navigation Links */
+nav a {
+    position: relative;
+    transition: color 0.3s;
 }
 
-.logo { font-weight: bold; letter-spacing: 2px; color: white; }
-
-.nav-links a {
-    color: var(--text);
-    text-decoration: none;
-    margin-left: 20px;
-    font-size: 14px;
+nav a:hover {
+    color: var(--electric-blue) !important;
 }
 
-.hero { text-align: center; padding: 60px 20px; }
+/* Product & Staff Cards */
+.card, #product-grid > div, #staff-grid > div {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
 
-.grid {
+.card:hover, #product-grid > div:hover {
+    border-color: var(--electric-blue);
+    box-shadow: var(--glow);
+    transform: translateY(-5px);
+}
+
+/* Inputs & Textareas */
+input, textarea {
+    width: 100%;
+    padding: 12px;
+    background: #010409;
+    border: 1px solid var(--border-color);
+    color: white;
+    border-radius: 6px;
+    margin-top: 8px;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--electric-blue);
+    box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+}
+
+/* Buttons */
+button, .btn {
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 24px;
+}
+
+.btn-blue {
+    background-color: var(--electric-blue);
+    color: white;
+}
+
+.btn-blue:hover {
+    background-color: #79c0ff;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--electric-blue);
+    color: var(--electric-blue);
+}
+
+.btn-outline:hover {
+    background: rgba(88, 166, 255, 0.1);
+}
+
+/* Status Badges */
+.badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+/* Responsive Grid */
+#product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
-    padding: 0 5% 60px;
+    gap: 25px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.card {
-    background: var(--card);
-    border-radius: 12px;
-    border: 1px solid #30363d;
-    overflow: hidden;
-    transition: transform 0.2s;
+/* Custom Scrollbar for the Studio Vibe */
+::-webkit-scrollbar {
+    width: 8px;
 }
 
-.card:hover { transform: translateY(-5px); border-color: var(--accent); }
-
-.img-placeholder {
-    height: 250px;
-    background: #21262d;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    color: #484f58;
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
 }
 
-.card-info { padding: 20px; }
-
-.price { color: var(--accent); font-weight: bold; font-size: 18px; }
-
-.buy-btn {
-    width: 100%;
-    background: var(--accent);
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
 }
 
-footer {
-    text-align: center;
-    padding: 40px;
-    font-size: 12px;
-    color: #484f58;
-    border-top: 1px solid #30363d;
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-dim);
 }

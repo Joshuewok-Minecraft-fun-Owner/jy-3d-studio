@@ -2,70 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Checkout | JY 3D Studio</title>
+    <title>Checkout | JY 3D</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
-<body style="background:#0d1117; color:white; font-family:sans-serif; padding:20px;">
-
-<div style="max-width: 500px; margin: 40px auto; background:#161b22; padding:30px; border-radius:12px; border:1px solid #30363d;">
-    <h2>Your Order Slip</h2>
-    <div id="cart-display" style="margin-bottom:20px; border-bottom:1px solid #30363d; padding-bottom:15px;"></div>
-    
-    <form id="order-form">
-        <label style="color:#8b949e; font-size:0.8rem;">FULL NAME</label>
-        <input type="text" id="cust-name" required style="width:100%; padding:10px; margin:5px 0 20px 0; background:#010409; color:white; border:1px solid #30363d; border-radius:6px;">
-
-        <label style="color:#8b949e; font-size:0.8rem;">EMAIL ADDRESS</label>
-        <input type="email" id="cust-email" required style="width:100%; padding:10px; margin:5px 0 20px 0; background:#010409; color:white; border:1px solid #30363d; border-radius:6px;">
-
-        <button type="submit" id="submit-btn" style="width:100%; padding:15px; background:#58a6ff; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">
-            Submit Order to Studio
-        </button>
-    </form>
-</div>
-
-<script type="module">
-    import { db, collection, addDoc } from './firebase-config.js';
-
-    const cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
-    const display = document.getElementById('cart-display');
-
-    // Show items in the UI
-    if(cart.length === 0) {
-        display.innerHTML = "Your slip is empty.";
-    } else {
-        cart.forEach(item => {
-            display.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <span>${item.name}</span><strong>${item.price}</strong>
-            </div>`;
-        });
-    }
-
-    // Handle the Firebase Sync
-    document.getElementById('order-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('submit-btn');
-        btn.innerText = "Syncing...";
-        btn.disabled = true;
-
-        try {
-            await addDoc(collection(db, "orders"), {
-                customerName: document.getElementById('cust-name').value,
-                customerEmail: document.getElementById('cust-email').value,
-                items: cart,
-                status: "active",
-                timestamp: new Date()
-            });
-
-            alert("Order received! Check your email soon.");
-            localStorage.removeItem('jy_cart');
-            window.location.href = "index.html";
-        } catch (err) {
-            alert("Firebase Error: " + err.message);
-            btn.innerText = "Submit Order to Studio";
-            btn.disabled = false;
-        }
-    });
-</script>
+<body style="background:#0d1117; color:white;">
+    <div style="max-width: 600px; margin: 40px auto; padding: 20px;">
+        <h2>Order Summary</h2>
+        <div id="cart-list" style="background:#161b22; border:1px solid #30363d; border-radius:8px; padding:20px;"></div>
+        </div>
 </body>
 </html>

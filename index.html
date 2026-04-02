@@ -2,33 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>JY 3D Studio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collection | JY 3D Studio</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <nav style="display: flex; align-items: center; justify-content: space-between; padding: 15px 30px; background: #161b22; border-bottom: 1px solid #30363d;">
+        <div style="display: flex; align-items: center;">
+            <a href="index.html" style="text-decoration: none; display: flex; align-items: center;">
+                <img src="https://i.postimg.cc/SRM77fTp/JY_3D_Studio_Logo.png" alt="Logo" style="height: 40px; margin-right: 12px;">
+                <span style="color: white; font-weight: bold; font-size: 1.2rem;">JY 3D <span style="color: #58a6ff;">STUDIO</span></span>
+            </a>
+        </div>
+        <div style="display: flex; gap: 20px;">
+            <a href="index.html" style="color: #58a6ff; text-decoration: none;">Collection</a>
+            <a href="custom.html" style="color: #8b949e; text-decoration: none;">Custom Request</a>
+        </div>
+    </nav>
 
-<nav>
-    <div class="logo">JY 3D STUDIO</div>
-    <div class="nav-links">
-        <a href="index.html">Collection</a>
-        <a href="custom.html">Custom Design</a>
-        <a href="checkout.html">Cart</a>
+    <div style="padding: 40px; text-align: center;">
+        <h1 style="color: white;">Original Geometry</h1>
+        <p style="color: #8b949e;">Select a design to begin the build process.</p>
+        <div id="product-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-top: 40px;">
+            </div>
     </div>
-</nav>
-
-<header style="text-align:center; padding:100px 20px;">
-    <h1>Original Geometry. Digital Craft.</h1>
-    <p>Premium 3D prints from Yorba Linda, CA.</p>
-</header>
-
-<section style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:20px; padding:40px;">
-    <div class="card" style="background:#161b22; padding:20px; border-radius:10px; border:1px solid #30363d;">
-        <h3>Geometric Vase</h3>
-        <p>$25.00</p>
-        <button class="buy-btn" onclick="addToCart('Geometric Vase', '$25.00')" style="width:100%; padding:10px; background:#58a6ff; border:none; border-radius:5px; color:white; cursor:pointer;">Add to Slip</button>
-    </div>
-</section>
-
-<script src="main.js"></script>
+    <script type="module" src="main.js"></script>
 </body>
 </html>

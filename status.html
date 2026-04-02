@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Print Status | JY 3D</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="background:#0d1117; color:white; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh;">
+    <div style="background:#161b22; border:1px solid #30363d; padding:40px; border-radius:12px; text-align:center; width:90%; max-width:400px;">
+        <img src="https://i.postimg.cc/SRM77fTp/JY_3D_Studio_Logo.png" style="height:50px; margin-bottom:20px;">
+        <h2 id="cust-name">Locating Order...</h2>
+        <div id="badge" style="padding:10px 20px; border-radius:20px; font-weight:bold; display:inline-block; margin:20px 0;">--</div>
+        <p id="msg" style="color:#8b949e;"></p>
+        <p style="font-size:10px; color:#30363d; margin-top:20px;">ID: <span id="ord-id"></span></p>
+    </div>
+
+    <script type="module">
+        import { db, doc, onSnapshot } from './firebase-config.js';
+        const id = new URLSearchParams(window.location.search).get('id');
+        if(id) {
+            document.getElementById('ord-id').innerText = id;
+            onSnapshot(doc(db, "orders", id), (s) => {
+                if(s.exists()){
+                    const d = s.data();
+                    document.getElementById('cust-name').innerText = `Hi, ${d.customerName}`;
+                    const b = document.getElementById('badge');
+                    b.innerText = d.status === 'active' ? "IN PRODUCTION" : "PRINT FINISHED";
+                    b.style.background = d.status === 'active' ? "rgba(88,166,255,0.1)" : "rgba(56,232,120,0.1)";
+                    b.style.color = d.status === 'active' ? "#58a6ff" : "#3fb950";
+                    document.getElementById('msg').innerText = d.status === 'active' ? "Your geometry is currently on the build plate." : "Success! Your print is complete.";
+                }
+            });
+        }
+    </script>
+</body>
+</html>
