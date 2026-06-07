@@ -3,83 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Request | JY 3D Studio</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Custom Design Request - JY 3D Studio</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-    <nav style="display: flex; align-items: center; justify-content: space-between; padding: 15px 30px; background: #161b22; border-bottom: 1px solid #30363d;">
-        <a href="index.html" style="text-decoration: none; display: flex; align-items: center;">
-            <img src="https://i.postimg.cc/SRM77fTp/JY_3D_Studio_Logo.png" alt="Logo" style="height: 40px; margin-right: 12px;">
-            <span style="color: white; font-weight: bold; font-size: 1.2rem;">JY 3D <span style="color: #58a6ff;">STUDIO</span></span>
-        </a>
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <a href="index.html" style="color: #c9d1d9; text-decoration: none;">Collection</a>
-            <a href="custom.html" style="color: #c9d1d9; text-decoration: none;">Custom Request</a>
-            <a href="checkout.html" style="color: #c9d1d9; text-decoration: none; position: relative;">
-                Cart
-                <span id="cart-count" style="position: absolute; top: -8px; right: -15px; background: #58a6ff; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: bold;">0</span>
-            </a>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo-section">
+                <img src="images/logo.png" alt="JY 3D Studio Logo" class="logo-img">
+                <div class="logo-text">
+                    <h1>JY 3D STUDIO</h1>
+                    <p>Original Geometry. Digital Craft.</p>
+                </div>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Products</a></li>
+                <li><a href="custom.html" class="active">Custom Design</a></li>
+                <li><a href="checkout.html">Checkout</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
     </nav>
 
-    <div style="max-width: 500px; margin: 50px auto; padding: 20px;">
-        <div style="background: #161b22; border: 1px solid #30363d; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-            <h2 style="margin-top: 0; color: white;">Custom Project</h2>
-            <p style="color: #8b949e; font-size: 0.9rem; margin-bottom: 25px;">Have a specific geometry in mind? Add your details here and we'll process your request at checkout.</p>
-
-            <form id="custom-form">
-                <label style="color:#8b949e; font-size:0.75rem; text-transform: uppercase; letter-spacing: 1px;">STL / 3D Model Link</label>
-                <input type="url" id="stl-link" placeholder="Google Drive, Dropbox, or Thingiverse link" 
-                    style="width:100%; padding:12px; margin:8px 0 12px 0; background:#010409; border:1px solid #30363d; color:white; border-radius:6px;">
-
-                <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 10px; background: rgba(88, 166, 255, 0.05); padding: 10px; border-radius: 6px; border: 1px dashed #30363d;">
-                    <input type="checkbox" id="no-file" style="width: auto; margin: 0; cursor: pointer;">
-                    <label for="no-file" style="color: #58a6ff; font-size: 0.85rem; cursor: pointer; user-select: none;">
-                        I don't have a file (I need design help)
-                    </label>
-                </div>
-
-                <label style="color:#8b949e; font-size:0.75rem; text-transform: uppercase; letter-spacing: 1px;">Project Notes</label>
-                <textarea id="notes" placeholder="Tell me about the size, color, and use case..." required 
-                    style="width:100%; height:120px; padding:12px; margin:8px 0 25px 0; background:#010409; border:1px solid #30363d; color:white; border-radius:6px; resize: none;"></textarea>
-                
-                <button type="submit" id="submit-btn" class="btn-blue" style="width:100%; font-size: 1rem; letter-spacing: 1px;">
-                    Add to Checkout
-                </button>
-            </form>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h2>Custom Design Services</h2>
+            <p>Tell us your vision, and we'll engineer it into reality</p>
         </div>
-    </div>
+    </section>
 
-    <script type="module">
-        const form = document.getElementById('custom-form');
+    <!-- Custom Request Form -->
+    <section class="custom-section">
+        <div class="container">
+            <div class="form-wrapper">
+                <h2>Request a Custom Design</h2>
+                <p class="section-description">Submit your design requirements and we'll provide a personalized quote</p>
 
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            // 1. Get the data
-            const needsDesign = document.getElementById('no-file').checked;
-            const rawLink = document.getElementById('stl-link').value;
-            const notes = document.getElementById('notes').value;
+                <form class="custom-form" id="customForm" onsubmit="handleSubmit(event)">
+                    <!-- Personal Information -->
+                    <fieldset>
+                        <legend>Your Information</legend>
+                        <div class="form-group">
+                            <label for="name">Full Name *</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number (optional)</label>
+                            <input type="tel" id="phone" name="phone">
+                        </div>
+                    </fieldset>
 
-            // 2. Create a "Custom Item" object
-            const customItem = {
-                name: "Custom 3D Print Request",
-                price: "TBD (Quote Pending)", // No price yet
-                image_url: "https://i.postimg.cc/SRM77fTp/JY_3D_Studio_Logo.png", // Use logo as placeholder
-                stlUrl: needsDesign ? "DESIGN_HELP_REQUIRED" : (rawLink || "NO_LINK_PROVIDED"),
-                notes: notes,
-                id: Date.now()
-            };
+                    <!-- Project Details -->
+                    <fieldset>
+                        <legend>Project Details</legend>
+                        <div class="form-group">
+                            <label for="project-name">Project Name/Title *</label>
+                            <input type="text" id="project-name" name="project-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Project Description *</label>
+                            <textarea id="description" name="description" rows="5" placeholder="Describe your 3D design needs in detail..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="complexity">Design Complexity *</label>
+                            <select id="complexity" name="complexity" required>
+                                <option value="">-- Select Complexity Level --</option>
+                                <option value="simple">Simple (Basic shapes, minimal detail)</option>
+                                <option value="moderate">Moderate (Standard features, some detail)</option>
+                                <option value="complex">Complex (Intricate details, multiple parts)</option>
+                                <option value="very-complex">Very Complex (Advanced geometry, many components)</option>
+                            </select>
+                        </div>
+                    </fieldset>
 
-            // 3. Add to the existing cart
-            let cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
-            cart.push(customItem);
-            localStorage.setItem('jy_cart', JSON.stringify(cart));
+                    <!-- File Upload & References -->
+                    <fieldset>
+                        <legend>References & Files (Optional)</legend>
+                        <div class="form-group">
+                            <label for="reference-url">Reference Image/Link URL</label>
+                            <input type="url" id="reference-url" name="reference-url" placeholder="https://example.com/image.jpg">
+                        </div>
+                        <div class="form-group">
+                            <label for="file-upload">Upload Reference Files (Images, STL, etc.)</label>
+                            <input type="file" id="file-upload" name="file-upload" multiple accept=".jpg,.jpeg,.png,.stl,.pdf,.obj,.fbx">
+                            <small>Supported formats: JPG, PNG, STL, PDF, OBJ, FBX (Max 10MB per file)</small>
+                        </div>
+                    </fieldset>
 
-            // 4. Redirect to checkout to finish the bundle
-            window.location.href = 'checkout.html';
-        });
-    </script>
+                    <!-- Budget & Timeline -->
+                    <fieldset>
+                        <legend>Budget & Timeline</legend>
+                        <div class="form-group">
+                            <label for="budget">Estimated Budget *</label>
+                            <select id="budget" name="budget" required>
+                                <option value="">-- Select Budget Range --</option>
+                                <option value="under-100">Under $100</option>
+                                <option value="100-250">$100 - $250</option>
+                                <option value="250-500">$250 - $500</option>
+                                <option value="500-1000">$500 - $1,000</option>
+                                <option value="1000-plus">$1,000+</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="timeline">When Do You Need This? *</label>
+                            <select id="timeline" name="timeline" required>
+                                <option value="">-- Select Timeline --</option>
+                                <option value="flexible">Flexible (No deadline)</option>
+                                <option value="2-4-weeks">2-4 weeks</option>
+                                <option value="1-2-weeks">1-2 weeks</option>
+                                <option value="urgent">Urgent (Less than 1 week)</option>
+                            </select>
+                        </div>
+                    </fieldset>
+
+                    <!-- Additional Information -->
+                    <fieldset>
+                        <legend>Additional Notes</legend>
+                        <div class="form-group">
+                            <label for="additional">Anything Else We Should Know?</label>
+                            <textarea id="additional" name="additional" rows="3" placeholder="Any special requirements, preferences, or questions..."></textarea>
+                        </div>
+                    </fieldset>
+
+                    <!-- Consent -->
+                    <div class="form-group checkbox">
+                        <input type="checkbox" id="consent" name="consent" required>
+                        <label for="consent">I agree to be contacted regarding my design request</label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-primary btn-large">Submit Design Request</button>
+                    <p class="form-note">We'll review your request and send you a personalized quote within 24 hours</p>
+                </form>
+
+                <!-- Success Message -->
+                <div id="successMessage" class="success-message" style="display: none;">
+                    <h3>✓ Request Submitted Successfully!</h3>
+                    <p>Thank you for your interest in our custom design services. We've received your request and will contact you shortly with a personalized quote.</p>
+                    <a href="index.html" class="btn-primary">Back to Home</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 JY 3D Studio. All rights reserved.</p>
+            <p>Original Geometry. Digital Craft.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>

@@ -3,156 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout | JY 3D Studio</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <title>Checkout - JY 3D Studio</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-    <nav style="display: flex; align-items: center; justify-content: space-between; padding: 15px 30px; background: #161b22; border-bottom: 1px solid #30363d;">
-        <a href="index.html" style="text-decoration: none; display: flex; align-items: center;">
-            <img src="https://i.postimg.cc/SRM77fTp/JY_3D_Studio_Logo.png" alt="Logo" style="height: 40px; margin-right: 12px;">
-            <span style="color: white; font-weight: bold; font-size: 1.2rem;">JY 3D <span style="color: #58a6ff;">STUDIO</span></span>
-        </a>
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <a href="index.html" style="color: #c9d1d9; text-decoration: none;">Collection</a>
-            <a href="custom.html" style="color: #c9d1d9; text-decoration: none;">Custom Request</a>
-            <a href="checkout.html" style="color: #c9d1d9; text-decoration: none; position: relative;">
-                Cart
-                <span id="cart-count" style="position: absolute; top: -8px; right: -15px; background: #58a6ff; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: bold;">0</span>
-            </a>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo-section">
+                <img src="images/logo.png" alt="JY 3D Studio Logo" class="logo-img">
+                <div class="logo-text">
+                    <h1>JY 3D STUDIO</h1>
+                    <p>Original Geometry. Digital Craft.</p>
+                </div>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Products</a></li>
+                <li><a href="custom.html">Custom Design</a></li>
+                <li><a href="checkout.html" class="active">Checkout</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
     </nav>
 
-    <div style="max-width: 800px; margin: 40px auto; padding: 20px; display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px;">
-        
-        <div style="background: #161b22; padding: 30px; border-radius: 12px; border: 1px solid #30363d;">
-            <h2 style="margin-top:0;">Shipping & Contact</h2>
-            <form id="checkout-form">
-                <input type="text" id="cust-name" placeholder="Full Name" required>
-                <input type="email" id="cust-email" placeholder="Email Address" required>
-                <textarea id="cust-address" placeholder="Shipping Address" required style="height: 80px; margin-top:10px;"></textarea>
+    <!-- Checkout Section -->
+    <section class="checkout-section">
+        <div class="container">
+            <div class="checkout-wrapper">
+                <h2>Checkout</h2>
                 
-                <button type="submit" id="confirm-btn" class="btn-blue" style="width:100%; margin-top:20px; font-size:1.1rem;">
-                    CONFIRM ORDER
-                </button>
-            </form>
-        </div>
+                <div class="checkout-content">
+                    <!-- Order Summary -->
+                    <div class="order-summary">
+                        <h3>Order Summary</h3>
+                        <div class="summary-placeholder">
+                            <p>Your selected items will appear here.</p>
+                            <p>Use the product links from our catalog to proceed to payment via Stripe.</p>
+                        </div>
+                    </div>
 
-        <div style="background: #0d1117; padding: 20px; border-radius: 12px; border: 1px solid #30363d; height: fit-content;">
-            <h3 style="margin-top:0; font-size: 1rem; color: #8b949e;">YOUR CART</h3>
-            <div id="cart-summary-list"></div>
-            <hr style="border:0; border-top:1px solid #30363d; margin: 15px 0;">
-            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size: 1.2rem;">
-                <span>Total</span>
-                <span id="total-price">$0.00</span>
+                    <!-- Checkout Info -->
+                    <div class="checkout-info">
+                        <h3>Billing & Shipping</h3>
+                        <div class="info-box">
+                            <h4>Payment Method</h4>
+                            <p>We use <strong>Stripe</strong> for secure payment processing. You'll be redirected to our secure payment page when you click "Buy Now" on any product.</p>
+                        </div>
+
+                        <div class="info-box">
+                            <h4>Shipping Information</h4>
+                            <p>After completing your purchase, you'll receive an order confirmation email with tracking information. Standard shipping typically takes 3-7 business days.</p>
+                        </div>
+
+                        <div class="info-box">
+                            <h4>Returns & Refunds</h4>
+                            <p>We stand behind our products. If you're not satisfied, we offer a 30-day return policy for unused items in original condition.</p>
+                        </div>
+
+                        <div class="info-box">
+                            <h4>Questions?</h4>
+                            <p>Contact us at <a href="mailto:joshueowk674@outlook.com">joshueowk674@outlook.com</a> for any billing questions.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA -->
+                <div class="checkout-cta">
+                    <a href="index.html" class="btn-primary btn-large">Continue Shopping</a>
+                    <a href="custom.html" class="btn-secondary">Request Custom Design</a>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <script type="module">
-        import { db, collection, addDoc } from './firebase-config.js';
-        
-        emailjs.init("2Spf-O36MRmZJNqVo");
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 JY 3D Studio. All rights reserved.</p>
+            <p>Original Geometry. Digital Craft.</p>
+        </div>
+    </footer>
 
-        const cart = JSON.parse(localStorage.getItem('jy_cart')) || [];
-        const summaryContainer = document.getElementById('cart-summary-list');
-        const totalDisplay = document.getElementById('total-price');
-
-        // 1. Render the Cart Summary
-        let total = 0;
-        let finalTotalString = "";
-
-        if (cart.length === 0) {
-            summaryContainer.innerHTML = "<p style='color:#8b949e;'>Cart is empty.</p>";
-            document.getElementById('confirm-btn').disabled = true;
-            totalDisplay.innerText = "$0.00";
-        } else {
-            cart.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.style = "display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.9rem;";
-                itemDiv.innerHTML = `<span>${item.name}</span><span>${item.price}</span>`;
-                summaryContainer.appendChild(itemDiv);
-                
-                const priceValue = parseFloat(item.price.replace('$', ''));
-                if (!isNaN(priceValue)) {
-                    total += priceValue;
-                }
-            });
-
-            finalTotalString = total > 0 ? `$${total.toFixed(2)}` : "Quote Pending";
-            totalDisplay.innerText = finalTotalString;
-        }
-
-        // 2. Handle Order Submission
-        document.getElementById('checkout-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('confirm-btn');
-            btn.innerText = "PROCESSING...";
-            btn.disabled = true;
-
-            const customerName = document.getElementById('cust-name').value;
-            const customerEmail = document.getElementById('cust-email').value;
-
-            // This object is saved to FIREBASE - it contains all the data.
-            const orderData = {
-                customerName: customerName,
-                customerEmail: customerEmail,
-                address: document.getElementById('cust-address').value,
-                items: cart, // Save the original, full cart data
-                totalPrice: finalTotalString,
-                status: "active",
-                timestamp: new Date()
-            };
-            
-            // **NEW**: This object is sent to EMAILJS - it's sanitized for the template.
-            const emailParams = {
-                customerName: customerName,
-                customerEmail: customerEmail,
-                totalPrice: finalTotalString,
-                // Map cart to a new array that matches the template's expected variables
-                items: cart.map(item => ({
-                    name: item.name || 'Unnamed Item',
-                    price: item.price || 'N/A',
-                    // Use a placeholder if image_url is missing, as the template requires it
-                    image_url: item.image_url || 'https://i.postimg.cc/8Cg0vC4Y/placeholder.png', 
-                    // Add color and size, even if blank, to match the template
-                    color: item.color || '',
-                    size: item.size || ''
-                }))
-            };
-
-            try {
-                // Step 1: Save the full order data to Firebase
-                const docRef = await addDoc(collection(db, "orders"), orderData);
-                
-                // Step 2: Add the new order ID to the email parameters
-                emailParams.order_id = docRef.id;
-
-                // Step 3: Send the sanitized data to EmailJS
-                await emailjs.send("jy3ddesign", "jy3dorder", emailParams);
-
-                // Step 4: Clear cart and redirect
-                localStorage.removeItem('jy_cart');
-                window.location.href = `status.html?id=${docRef.id}`;
-
-            } catch (error) {
-                console.error("Order Submission Failed:", error);
-                let errorMessage = "An unknown error occurred. Please check the developer console.";
-
-                // This provides a more detailed error from EmailJS if available
-                if (typeof error === 'object' && error.status && error.text) {
-                    errorMessage = `EmailJS Error ${error.status}: ${error.text}`;
-                } else if (error && error.message) {
-                    errorMessage = `Firebase/Network Error: ${error.message}`;
-                }
-                
-                alert(`Order failed to process. Reason: ${errorMessage}`);
-                
-                btn.disabled = false;
-                btn.innerText = "CONFIRM ORDER";
-            }
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>

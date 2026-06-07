@@ -2,66 +2,82 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Print Status | JY 3D</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed - JY 3D Studio</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <nav style="display: flex; align-items: center; justify-content: space-between; padding: 15px 30px; background: #161b22; border-bottom: 1px solid #30363d;">
-        <a href="index.html" style="text-decoration: none; display: flex; align-items: center;">
-            <img src="https://i.postimg.cc/SRM77fTp/JY_3D_Studio_Logo.png" alt="Logo" style="height: 40px; margin-right: 12px;">
-            <span style="color: white; font-weight: bold; font-size: 1.2rem;">JY 3D <span style="color: #58a6ff;">STUDIO</span></span>
-        </a>
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <a href="index.html" style="color: #c9d1d9; text-decoration: none;">Collection</a>
-            <a href="custom.html" style="color: #c9d1d9; text-decoration: none;">Custom Request</a>
-            <a href="checkout.html" style="color: #c9d1d9; text-decoration: none; position: relative;">
-                Cart
-                <span id="cart-count" style="position: absolute; top: -8px; right: -15px; background: #58a6ff; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: bold;">0</span>
-            </a>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo-section">
+                <img src="images/logo.png" alt="JY 3D Studio Logo" class="logo-img">
+                <div class="logo-text">
+                    <h1>JY 3D STUDIO</h1>
+                    <p>Original Geometry. Digital Craft.</p>
+                </div>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Products</a></li>
+                <li><a href="custom.html">Custom Design</a></li>
+                <li><a href="checkout.html">Checkout</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
     </nav>
 
-    <div style="background:#0d1117; color:white; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:calc(100vh - 70px);">
-        <div style="background:#161b22; border:1px solid #30363d; padding:40px; border-radius:12px; text-align:center; width:90%; max-width:400px;">
-            <img src="https://i.postimg.cc/SRM77fTp/JY_3D_Studio_Logo.png" style="height:50px; margin-bottom:20px;">
-            <h2 id="cust-name">Locating Order...</h2>
-            <div id="badge" style="padding:10px 20px; border-radius:20px; font-weight:bold; display:inline-block; margin:20px 0;">--</div>
-            <p id="msg" style="color:#8b949e;"></p>
-            <p style="font-size:10px; color:#30363d; margin-top:20px;">ID: <span id="ord-id"></span></p>
-        </div>
-    </div>
+    <!-- Success Section -->
+    <section class="status-section success">
+        <div class="container">
+            <div class="status-wrapper">
+                <div class="status-icon">✓</div>
+                <h2>Order Confirmed!</h2>
+                <p class="status-message">Thank you for your purchase. Your order has been successfully placed.</p>
+                
+                <div class="status-content">
+                    <div class="status-card">
+                        <h3>📧 Next Steps</h3>
+                        <p>Check your email for:</p>
+                        <ul>
+                            <li>Order confirmation details</li>
+                            <li>Tracking information</li>
+                            <li>Estimated delivery date</li>
+                        </ul>
+                    </div>
 
-    <script type="module">
-        import { db, doc, onSnapshot } from './firebase-config.js';
-        const id = new URLSearchParams(window.location.search).get('id');
-        if(id) {
-            document.getElementById('ord-id').innerText = id;
-            onSnapshot(doc(db, "orders", id), (s) => {
-                if(s.exists()){
-                    const d = s.data();
-                    document.getElementById('cust-name').innerText = `Hi, ${d.customerName}`;
-                    const b = document.getElementById('badge');
-                    const msg = document.getElementById('msg');
-                    
-                    if (d.status === 'active') {
-                        b.innerText = "Order Received";
-                        msg.innerText = "In Queue";
-                        b.style.background = "rgba(88,166,255,0.1)";
-                        b.style.color = "#58a6ff";
-                    } else if (d.status === 'printing') {
-                        b.innerText = "In Production";
-                        msg.innerText = "On Build Plate";
-                        b.style.background = "rgba(255, 193, 7, 0.1)";
-                        b.style.color = "#ffc107";
-                    } else if (d.status === 'completed') {
-                        b.innerText = "Print Finished";
-                        msg.innerText = "Success! Your print is complete.";
-                        b.style.background = "rgba(56,232,120,0.1)";
-                        b.style.color = "#3fb950";
-                    }
-                }
-            });
-        }
-    </script>
+                    <div class="status-card">
+                        <h3>📦 Shipping Details</h3>
+                        <p>Your order will ship within 2-3 business days. Once shipped, you'll receive a tracking number via email.</p>
+                    </div>
+
+                    <div class="status-card">
+                        <h3>🙋 Have Questions?</h3>
+                        <p>Contact us at <a href="mailto:joshueowk674@outlook.com">joshueowk674@outlook.com</a></p>
+                    </div>
+                </div>
+
+                <!-- CTA Buttons -->
+                <div class="status-actions">
+                    <a href="index.html" class="btn-primary btn-large">Continue Shopping</a>
+                    <a href="custom.html" class="btn-secondary">Request Custom Design</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 JY 3D Studio. All rights reserved.</p>
+            <p>Original Geometry. Digital Craft.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>
