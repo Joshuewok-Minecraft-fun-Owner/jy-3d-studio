@@ -16,7 +16,27 @@ jobs:
           cat > js/firebase-config.js << 'EOF'
           // Auto-generated from GitHub Secrets - DO NOT EDIT MANUALLY
           // Update FIREBASE_CONFIG secret in: Settings > Secrets and variables > Actions
+          import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+          import { 
+              getFirestore, 
+              collection, 
+              addDoc, 
+              onSnapshot, 
+              query, 
+              where, 
+              orderBy, 
+              updateDoc, 
+              doc,
+              deleteDoc,
+              getDoc
+          } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+          
           const firebaseConfig = ${{ secrets.FIREBASE_CONFIG }};
+          
+          const app = initializeApp(firebaseConfig);
+          const db = getFirestore(app);
+          
+          export { db, collection, addDoc, onSnapshot, query, where, orderBy, updateDoc, doc, getDoc, deleteDoc };
           EOF
       
       - name: Deploy to GitHub Pages
